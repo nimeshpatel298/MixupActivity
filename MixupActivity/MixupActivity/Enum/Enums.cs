@@ -19,11 +19,5 @@ namespace MixupActivity.Enum
             //[Display(Name = "Debit For Outside")]
             //DebitForOutside
         }
-
-        //public enum TransactionFor
-        //{
-        //    EMI = 1,
-        //    Interest
-        //}
     }
 }
