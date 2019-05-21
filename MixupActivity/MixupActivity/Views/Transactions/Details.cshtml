@@ -1,0 +1,51 @@
+﻿@model MixupActivity.Models.Transaction
+
+@{
+    ViewBag.Title = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Details</h2>
+
+<div>
+    <h4>Transaction</h4>
+    <hr />
+    <dl class="dl-horizontal">
+        <dt>
+            @Html.DisplayNameFor(model => model.Person.LoginId)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Person.LoginId)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TranscationType)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TranscationType)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.Amount)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.Amount)
+        </dd>
+
+        <dt>
+            @Html.DisplayNameFor(model => model.TransactionDate)
+        </dt>
+
+        <dd>
+            @Html.DisplayFor(model => model.TransactionDate)
+        </dd>
+
+    </dl>
+</div>
+<p>
+    @Html.ActionLink("Edit", "Edit", new { id = Model.TranscationGuid }) |
+    @Html.ActionLink("Back to List", "Index")
+</p>
