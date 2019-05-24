@@ -1,72 +1,124 @@
-﻿@*@model IEnumerable<MixupActivity.Models.Transaction>*@
-
-@model MixupActivity.Models.TransactionsWithFilter
-
-    @{
-        ViewBag.Title = "Index";
-        Layout = "~/Views/Shared/_Layout.cshtml";
-    }
-
-    <h2>Index</h2>
-
-    <p>
-        @Html.ActionLink("Create New", "Create")
-    </p>
-    @using (Html.BeginForm())
-    {
+﻿@model MixupActivity.Models.TransactionsWithFilter
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2>Index</h2>
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+@using (Html.BeginForm())
+{
     @Html.AntiForgeryToken()
-    <div class="form-group">
-        @Html.LabelFor(model => model.PersonGuid, "Transaction For", htmlAttributes: new { @class = "control-label col-md-2" })
-        <div class="col-md-10">
-            @Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList,"All", htmlAttributes: new { @class = "form-control" })
-            @Html.ValidationMessageFor(model => model.PersonGuid, "", new { @class = "text-danger" })
+    <div class="row">
+        <div class="form-group">
+            @Html.LabelFor(model => model.PersonGuid, "Transaction For", htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList, "All", htmlAttributes: new { @class = "form-control" })
+            </div>
         </div>
     </div>
+
+    <div class="row">
+        <div class="form-group col-lg-2">
+            @Html.LabelFor(model => model.IsMonthlyEMI, "Monthly EMI", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.IsMonthlyEMI, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-2">
+            @Html.LabelFor(model => model.ReturnMoneySelf, "Return Money Self", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.ReturnMoneySelf, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-3">
+            @Html.LabelFor(model => model.ReturnMoneyThirdParty, "Return Money ThirdParty", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.ReturnMoneyThirdParty, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-2">
+            @Html.LabelFor(model => model.InterestSelf, "Interest Self", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.InterestSelf, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-2">
+            @Html.LabelFor(model => model.InterestThirdParty, "Interest ThirdParty", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.InterestThirdParty, new { @class = "form-control" })
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="form-group col-lg-3">
+            @Html.LabelFor(model => model.WithDrawMoneySelf, "With DrawMoney Self", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.WithDrawMoneySelf, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-3">
+            @Html.LabelFor(model => model.WithDrawMoneyThirdParty, "WithDraw Money ThirdParty", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.WithDrawMoneyThirdParty, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-3">
+            @Html.LabelFor(model => model.Sip, "SIP", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.Sip, new { @class = "form-control" })
+        </div>
+
+        <div class="form-group col-lg-3">
+            @Html.LabelFor(model => model.Expense, "Expense", htmlAttributes: new { @class = "control-label" })
+            @Html.EditorFor(m => m.Expense, new { @class = "form-control" })
+        </div>
+    </div>
+
 
     <div class="form-group">
         <div class="col-md-offset-2 col-md-10">
             <input type="submit" value="Search" class="btn btn-default" />
         </div>
     </div>
-    }
-    <table class="table">
+}
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayName("Name")
+        </th>
+        <th>
+            @Html.DisplayName("TranscationType")
+        </th>
+        <th>
+            @Html.DisplayName("Amount")
+        </th>
+        <th>
+            @Html.DisplayName("Transaction Date")
+        </th>
+        <th>
+            @Html.DisplayName("Transaction For")
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model.Transactions)
+    {
         <tr>
-            <th>
-                @Html.DisplayName("Name")
-            </th>
-            <th>
-                @Html.DisplayName("TranscationType")
-            </th>
-            <th>
-                @Html.DisplayName("Amount")
-            </th>
-            <th>
-                @Html.DisplayName("Transaction Date")
-            </th>
-            <th></th>
+            <td>
+                @Html.DisplayFor(modelItem => item.Person.PersonName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TranscationType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionDate)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id = item.TranscationGuid }) |
+
+                @Html.ActionLink("Delete", "Delete", new { id = item.TranscationGuid })
+            </td>
         </tr>
+    }
 
-        @foreach (var item in Model.Transactions)
-        {
-            <tr>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Person.PersonName)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TranscationType)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.Amount)
-                </td>
-                <td>
-                    @Html.DisplayFor(modelItem => item.TransactionDate)
-                </td>
-                <td>
-                    @Html.ActionLink("Edit", "Edit", new { id = item.TranscationGuid }) |
-
-                    @Html.ActionLink("Delete", "Delete", new { id = item.TranscationGuid })
-                </td>
-            </tr>
-        }
-
-    </table>
+</table>

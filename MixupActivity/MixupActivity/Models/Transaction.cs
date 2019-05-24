@@ -3,20 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Web;
 using System.Data.Entity;
-using static MixupActivity.Enum.Enums;
 using System.ComponentModel.DataAnnotations;
 
 namespace MixupActivity.Models
 {
+    using MixupActivity.Enum;
+
     public class Transaction
     {
         [Key]
         public Guid TranscationGuid { get; set; }
 
         [Required]
-        [Range(1, int.MaxValue,ErrorMessage ="Transaction Type is required.")]
-        [Display(Name  = "Transcation Type")]
-        public TransactionType TranscationType { get; set; }
+        [Range(1, int.MaxValue, ErrorMessage = "Transaction Type is required.")]
+        [Display(Name = "Transcation Type")]
+        public Enums.TransactionType TranscationType { get; set; }
 
         [Required(ErrorMessage = "Transaction For is required.")]
         [Display(Name = "Transcation For")]
@@ -27,10 +28,11 @@ namespace MixupActivity.Models
 
         [Display(Name = "Transcation Date")]
         [DataType(DataType.Date)]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime TransactionDate { get; set; }
 
-        
-        [Display(Name= "Transaction For")]
+
+        [Display(Name = "Transaction For")]
         public virtual Guid PersonGuid { get; set; }
 
         [Display(Name = "Transaction Of")]

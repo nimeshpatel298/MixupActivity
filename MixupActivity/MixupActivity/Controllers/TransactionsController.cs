@@ -1,12 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Data;
 using System.Data.Entity;
 using System.Linq;
 using System.Net;
-using System.Web;
 using System.Web.Mvc;
-using MixupActivity.Context;
 using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
@@ -14,27 +11,51 @@ namespace MixupActivity.Controllers
     public class TransactionsController : Controller
     {
         private Context.AppContext db = new Context.AppContext();
-        private IQueryable<Transaction> GetAllTransactions()
-        {
-            return db.Transactions.Include(t => t.Person);
-        }
-
-        // GET: Transactions
         public ActionResult Index()
         {
-            //var transactions = db.Transactions.Include(t => t.Person);
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
-            return View(new TransactionsWithFilter {Transactions = GetAllTransactions().ToList() });
+            return View(new TransactionsWithFilter { Transactions = GetAllTransactions().ToList() });
         }
 
         [HttpPost]
-        public ActionResult Index([Bind(Include = "PersonGuid")] TransactionsWithFilter transactionFilter)
+        public ActionResult Index([Bind(Exclude = "Transactions")] TransactionsWithFilter transactionFilter)
         {
-            var transactions = GetAllTransactions();
+            this.FilterTransactions(transactionFilter);
+
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
+            return View(transactionFilter);
+        }
+
+        private void FilterTransactions(TransactionsWithFilter transactionFilter)
+        {
+            transactionFilter.Transactions = this.GetAllTransactions();
             if (transactionFilter.PersonGuid != null)
-                transactions.Where(x => x.Person.PersonGuid == transactionFilter.PersonGuid);
-            return View(new TransactionsWithFilter { Transactions = transactions.ToList() });
+                transactionFilter.Transactions = transactionFilter.Transactions.Where(
+                    x => transactionFilter.PersonGuid == new Guid("00000000-0000-0000-0000-000000000000")
+                         || x.Person.PersonGuid == transactionFilter.PersonGuid);
+            var lstAllowTransactionFor = new List<string>();
+            if (transactionFilter.IsMonthlyEMI)
+                lstAllowTransactionFor.Add("Monthly EMI");
+            if (transactionFilter.ReturnMoneySelf)
+                lstAllowTransactionFor.Add("Return Money(Self)");
+            if (transactionFilter.ReturnMoneyThirdParty)
+                lstAllowTransactionFor.Add("Return Money(Third Party)");
+            if (transactionFilter.InterestSelf)
+                lstAllowTransactionFor.Add("Interest(Self)");
+            if (transactionFilter.InterestThirdParty)
+                lstAllowTransactionFor.Add("Interest(Third Party)");
+            if (transactionFilter.WithDrawMoneySelf)
+                lstAllowTransactionFor.Add("WithDraw Money(Self)");
+            if (transactionFilter.WithDrawMoneyThirdParty)
+                lstAllowTransactionFor.Add("WithDraw Money(Third Party)");
+            if (transactionFilter.Sip)
+                lstAllowTransactionFor.Add("SIP");
+            if (transactionFilter.Expense)
+                lstAllowTransactionFor.Add("Expense");
+
+            if (lstAllowTransactionFor.Any())
+                transactionFilter.Transactions = transactionFilter.Transactions.Where(
+                    x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor));
         }
 
         // GET: Transactions/Details/5
@@ -56,7 +77,8 @@ namespace MixupActivity.Controllers
         public ActionResult Create()
         {
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
-            return View(new Transaction());
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
+            return View(new Transaction() { TransactionDate = DateTime.Now });
         }
 
         // POST: Transactions/Create
@@ -64,7 +86,7 @@ namespace MixupActivity.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid")] Transaction transaction)
+        public ActionResult Create([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid,TranscationForGuid")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
@@ -75,9 +97,15 @@ namespace MixupActivity.Controllers
             }
 
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
             return View(transaction);
         }
 
+
+        public ActionResult GetTransactionFor(int id)
+        {
+            return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
+        }
         // GET: Transactions/Edit/5
         public ActionResult Edit(Guid? id)
         {
@@ -91,6 +119,7 @@ namespace MixupActivity.Controllers
                 return HttpNotFound();
             }
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
             return View(transaction);
         }
 
@@ -99,7 +128,7 @@ namespace MixupActivity.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid")] Transaction transaction)
+        public ActionResult Edit([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid,TranscationForGuid")] Transaction transaction)
         {
             if (ModelState.IsValid)
             {
@@ -108,6 +137,7 @@ namespace MixupActivity.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
             return View(transaction);
         }
 
@@ -144,6 +174,11 @@ namespace MixupActivity.Controllers
                 db.Dispose();
             }
             base.Dispose(disposing);
+        }
+
+        private IQueryable<Transaction> GetAllTransactions()
+        {
+            return db.Transactions.Include(t => t.Person).Include(x => x.TransactionFor);
         }
     }
 }
