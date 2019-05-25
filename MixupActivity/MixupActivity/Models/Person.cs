@@ -30,5 +30,6 @@ namespace MixupActivity.Models
         public string Mobile { get; set; }
 
         public virtual ICollection<Transaction> Transacctions { get; set; }
+
     }
 }

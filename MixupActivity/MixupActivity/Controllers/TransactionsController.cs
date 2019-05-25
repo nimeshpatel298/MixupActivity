@@ -8,6 +8,7 @@ using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
 {
+    [Authorize()]
     public class TransactionsController : Controller
     {
         private Context.AppContext db = new Context.AppContext();
