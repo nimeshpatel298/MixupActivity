@@ -8,6 +8,8 @@ using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
 {
+    using MixupActivity.CustomAuthentication;
+
     [Authorize()]
     public class TransactionsController : Controller
     {
@@ -77,9 +79,9 @@ namespace MixupActivity.Controllers
         // GET: Transactions/Create
         public ActionResult Create()
         {
-            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
+            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
-            return View(new Transaction() { TransactionDate = DateTime.Now });
+            return View(new Transaction() { TransactionDate = DateTime.Now.Date });
         }
 
         // POST: Transactions/Create
@@ -107,6 +109,78 @@ namespace MixupActivity.Controllers
         {
             return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
         }
+
+        [AllowAnonymous]
+        public ActionResult GetAmount(Guid personGuid, Guid transactionForGuid)
+        {
+            decimal amount = 0;
+            string message = string.Empty;
+            GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
+
+            return Json(new { amount = amount, text = message }, JsonRequestBehavior.AllowGet);
+            //return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
+        }
+
+        private void GetEstimation(Guid personGuid, Guid transactionForGuid, ref decimal amount, ref string message)
+        {
+            if (personGuid == null || transactionForGuid == null)
+                return;
+            if (db.TransactionFor.Any(x => x.TransactionType == 2 && x.TranscationForGuid.Equals(transactionForGuid)))
+                return;
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationForGuid.Equals(transactionForGuid));
+            if (transactionFor == null)
+                return;
+
+            decimal withdrawAmount = 0;
+            decimal returnAmount = 0;
+            switch (transactionFor.TranscationFor)
+            {
+                case "Monthly EMI":
+                    amount = 3000;
+                    message = "Monthly EMI is 3000";
+                    return;
+                case "Return Money(Self)":
+                    var withdrawMoneySelf = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Self)"));
+                    var returnMoneySelf = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Self)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(withdrawMoneySelf.TranscationForGuid)).Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelf.TranscationForGuid)).Sum(x => x.Amount);
+                    amount = withdrawAmount - returnAmount;
+                    message = "Total Outstanding Amount(Self) is" + amount + ".";
+                    return;
+                case "Return Money(Third Party)":
+                    var transactionForOutsideThirdParty = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Third Party)"));
+                    var transactionForOutsideThirdPartyReturned = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Third Party)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdParty.TranscationForGuid)).Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturned.TranscationForGuid)).Sum(x => x.Amount);
+                    amount = withdrawAmount - returnAmount;
+                    message = "Total Outstanding Amount(Third Party) is" + amount + ".";
+                    return;
+                case "Interest(Self)":
+                    var transactionForOutsideSelfInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Self)"));
+                    var returnMoneySelfInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Self)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideSelfInt.TranscationForGuid)).Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelfInt.TranscationForGuid)).Sum(x => x.Amount);
+                    amount = ((withdrawAmount - returnAmount) * (10 / 100)) / 12;
+                    message = "Total Outstanding Amount is " + (withdrawAmount - returnAmount) + ". Payable Interest is " + amount + ".";
+                    return;
+                case "Interest(Third Party)":
+                    var transactionForOutsideThirdPartyInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Third Party)"));
+                    var transactionForOutsideThirdPartyReturnedInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Third Party)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyInt.TranscationForGuid)).Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturnedInt.TranscationForGuid)).Sum(x => x.Amount);
+                    amount = ((withdrawAmount - returnAmount) * (15 / 100)) / 12;
+                    message = "Total Outstanding Amount(Third Party) is" + (withdrawAmount - returnAmount) + ".Payable Interest is " + amount + ".";
+                    return;
+                default:
+                    amount = 0;
+                    message = string.Empty;
+                    return;
+            }
+
+
+
+        }
+
         // GET: Transactions/Edit/5
         public ActionResult Edit(Guid? id)
         {

@@ -28,7 +28,6 @@ namespace MixupActivity.Models
 
         [Display(Name = "Transcation Date")]
         [DataType(DataType.Date)]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}", ApplyFormatInEditMode = true)]
         public DateTime TransactionDate { get; set; }
 
 
