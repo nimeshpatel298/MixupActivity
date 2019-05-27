@@ -133,6 +133,11 @@ namespace MixupActivity.Controllers
 
             decimal withdrawAmount = 0;
             decimal returnAmount = 0;
+            decimal selfInterestRate = 0.1m;
+            decimal thirdPartyInterestRate = 0.15m;
+
+
+
             switch (transactionFor.TranscationFor)
             {
                 case "Monthly EMI":
@@ -140,36 +145,62 @@ namespace MixupActivity.Controllers
                     message = "Monthly EMI is 3000";
                     return;
                 case "Return Money(Self)":
-                    var withdrawMoneySelf = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Self)"));
-                    var returnMoneySelf = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Self)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(withdrawMoneySelf.TranscationForGuid)).Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelf.TranscationForGuid)).Sum(x => x.Amount);
+                    var withdrawMoneySelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Self)"));
+                    var returnMoneySelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Self)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(withdrawMoneySelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
                     amount = withdrawAmount - returnAmount;
                     message = "Total Outstanding Amount(Self) is" + amount + ".";
+                    if (amount <= 0)
+                    {
+                        amount = 0;
+                        message = "There is no outstanding money. Please don't pay";
+                    }
                     return;
                 case "Return Money(Third Party)":
-                    var transactionForOutsideThirdParty = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Third Party)"));
-                    var transactionForOutsideThirdPartyReturned = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Third Party)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdParty.TranscationForGuid)).Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturned.TranscationForGuid)).Sum(x => x.Amount);
+                    var transactionForOutsideThirdParty = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Third Party)"));
+                    var transactionForOutsideThirdPartyReturned = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Third Party)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdParty.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturned.TranscationForGuid)).ToList().Sum(x => x.Amount);
                     amount = withdrawAmount - returnAmount;
                     message = "Total Outstanding Amount(Third Party) is" + amount + ".";
+                    if (amount <= 0)
+                    {
+                        amount = 0;
+                        message = "There is no outstanding money. Please don't pay";
+                    }
                     return;
                 case "Interest(Self)":
-                    var transactionForOutsideSelfInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Self)"));
-                    var returnMoneySelfInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Self)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideSelfInt.TranscationForGuid)).Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelfInt.TranscationForGuid)).Sum(x => x.Amount);
-                    amount = ((withdrawAmount - returnAmount) * (10 / 100)) / 12;
+                    var transactionForOutsideSelfInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Self)"));
+                    var returnMoneySelfInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Self)"));
+                    var interstSelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Interest(Third Party)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideSelfInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelfInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    var interestPaidSelf = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(interstSelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    amount = ((withdrawAmount - returnAmount) * selfInterestRate) / 12;
+                    amount = amount - interestPaidSelf;
                     message = "Total Outstanding Amount is " + (withdrawAmount - returnAmount) + ". Payable Interest is " + amount + ".";
+                    if (amount <= 0)
+                    {
+                        amount = 0;
+                        message = "There is no outstanding interest. Please don't pay";
+                    }
                     return;
                 case "Interest(Third Party)":
-                    var transactionForOutsideThirdPartyInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("WithDraw Money(Third Party)"));
-                    var transactionForOutsideThirdPartyReturnedInt = db.TransactionFor.FirstOrDefault(x => transactionFor.Equals("Return Money(Third Party)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyInt.TranscationForGuid)).Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturnedInt.TranscationForGuid)).Sum(x => x.Amount);
-                    amount = ((withdrawAmount - returnAmount) * (15 / 100)) / 12;
-                    message = "Total Outstanding Amount(Third Party) is" + (withdrawAmount - returnAmount) + ".Payable Interest is " + amount + ".";
+                    var transactionForOutsideThirdPartyInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Third Party)"));
+                    var transactionForOutsideThirdPartyReturnedInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Third Party)"));
+                    var interstThirdParty = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Interest(Third Party)"));
+                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturnedInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    var interestPaid = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(interstThirdParty.TranscationForGuid)).ToList().Sum(x => x.Amount);
+                    amount = ((withdrawAmount - returnAmount) * thirdPartyInterestRate) / 12;
+                    amount = amount - interestPaid;
+                    message = "Total Outstanding Amount(Third Party) is " + (withdrawAmount - returnAmount) + ".Payable Interest is " + amount + ".";
+                    if (amount <= 0)
+                    {
+                        amount = 0;
+                        message = "There is no outstanding Interest. Please don't pay";
+                    }
                     return;
                 default:
                     amount = 0;
@@ -194,7 +225,7 @@ namespace MixupActivity.Controllers
                 return HttpNotFound();
             }
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
-            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);
         }
 
@@ -212,7 +243,7 @@ namespace MixupActivity.Controllers
                 return RedirectToAction("Index");
             }
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
-            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);
         }
 

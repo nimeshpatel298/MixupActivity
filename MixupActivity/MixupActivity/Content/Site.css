@@ -22,3 +22,27 @@ select,
 textarea {
     max-width: 280px;
 }
+
+.d-none {
+    display: none !important;
+}
+
+/*.table th.abbreviation {
+    max-width: 30px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}*/
+
+
+@media (min-width: 992px) {
+    .d-lg-table-cell {
+        display: table-cell !important;
+    }
+}
+
+@media (max-width: 370px) {
+    .d-sm-block {
+        display: table-cell !important;
+    }
+}

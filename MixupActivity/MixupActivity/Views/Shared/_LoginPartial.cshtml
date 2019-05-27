@@ -10,7 +10,7 @@
                 @*@Html.Label("Hello " + ((CustomPrincipal)User).PersonName + "!", new { @class = "col-md-2 control-label" })*@
                 @Html.ActionLink("Hello " + ((CustomPrincipal)User).PersonName + "!", "Index", "Transactions", routeValues: null, htmlAttributes: null)
             </li>
-            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log off</a></li>
+            <li><a href="javascript:document.getElementById('logoutForm').submit()">Log Out</a></li>
         </ul>
     }
 }

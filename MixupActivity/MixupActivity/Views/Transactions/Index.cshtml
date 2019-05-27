@@ -3,122 +3,155 @@
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
-<h2>Index</h2>
 <p>
-    @Html.ActionLink("Create New", "Create")
+    @*@Html.ActionLink("Create New", "Create")*@
 </p>
 @using (Html.BeginForm())
 {
-    @Html.AntiForgeryToken()
-    <div class="row">
-        <div class="form-group">
-            @Html.LabelFor(model => model.PersonGuid, "Transaction For", htmlAttributes: new { @class = "control-label col-md-2" })
-            <div class="col-md-10">
-                @Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList, "All", htmlAttributes: new { @class = "form-control" })
+    <div class="panel panel-primary">
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-4">
+                    Transactions
+                </div>
+                <div class="col-lg-offset-7 col-lg-1">
+                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>New", "Create", null, new { @class = "btn btn-info btn-md" }); }
+                    @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
+                    @*<a href="Transactions/Create" class="btn btn-info btn-md">
+                            <span class="glyphicon glyphicon-plus"></span>New
+                        </a>*@
+                </div>
             </div>
         </div>
+        <div class="panel-body">
+            @Html.AntiForgeryToken()
+            <div class="row">
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PersonGuid, "Transaction For", htmlAttributes: new { @class = "control-label col-md-2" })
+                    @Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList, "All", htmlAttributes: new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.IsMonthlyEMI, "Monthly EMI", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.IsMonthlyEMI, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.ReturnMoneySelf, "Return Money Self", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.ReturnMoneySelf, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.ReturnMoneyThirdParty, "Return Money ThirdParty", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.ReturnMoneyThirdParty, new { @class = "form-control" })
+                </div>
+            </div>
+            <div class="row">
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.InterestSelf, "Interest Self", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.InterestSelf, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.InterestThirdParty, "Interest ThirdParty", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.InterestThirdParty, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-3">
+                    @Html.LabelFor(model => model.WithDrawMoneySelf, "With DrawMoney Self", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.WithDrawMoneySelf, new { @class = "form-control" })
+                </div>
+            </div>
+
+            <div class="row">
+
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.WithDrawMoneyThirdParty, "WithDraw Money ThirdParty", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.WithDrawMoneyThirdParty, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.Sip, "SIP", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.Sip, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.Expense, "Expense", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.Expense, new { @class = "form-control" })
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-lg-offset-11 col-lg-1">
+                        <input type="submit" value="Search" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 
-    <div class="row">
-        <div class="form-group col-lg-2">
-            @Html.LabelFor(model => model.IsMonthlyEMI, "Monthly EMI", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.IsMonthlyEMI, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-2">
-            @Html.LabelFor(model => model.ReturnMoneySelf, "Return Money Self", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.ReturnMoneySelf, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-3">
-            @Html.LabelFor(model => model.ReturnMoneyThirdParty, "Return Money ThirdParty", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.ReturnMoneyThirdParty, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-2">
-            @Html.LabelFor(model => model.InterestSelf, "Interest Self", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.InterestSelf, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-2">
-            @Html.LabelFor(model => model.InterestThirdParty, "Interest ThirdParty", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.InterestThirdParty, new { @class = "form-control" })
-        </div>
-    </div>
-
-    <div class="row">
-        <div class="form-group col-lg-3">
-            @Html.LabelFor(model => model.WithDrawMoneySelf, "With DrawMoney Self", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.WithDrawMoneySelf, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-3">
-            @Html.LabelFor(model => model.WithDrawMoneyThirdParty, "WithDraw Money ThirdParty", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.WithDrawMoneyThirdParty, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-3">
-            @Html.LabelFor(model => model.Sip, "SIP", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.Sip, new { @class = "form-control" })
-        </div>
-
-        <div class="form-group col-lg-3">
-            @Html.LabelFor(model => model.Expense, "Expense", htmlAttributes: new { @class = "control-label" })
-            @Html.EditorFor(m => m.Expense, new { @class = "form-control" })
-        </div>
-    </div>
-
-
-    <div class="form-group">
-        <div class="col-md-offset-2 col-md-10">
-            <input type="submit" value="Search" class="btn btn-default" />
-        </div>
-    </div>
 }
-<table class="table">
+<table id="dtBasicExample" class="table table-striped table-bordered">
     <tr>
         <th>
             @Html.DisplayName("Name")
         </th>
-        <th>
+        <th class="d-none d-lg-table-cell">
             @Html.DisplayName("TranscationType")
         </th>
         <th>
             @Html.DisplayName("Amount")
         </th>
-        <th>
+        <th class="d-none d-lg-table-cell">
             @Html.DisplayName("Transaction Date")
         </th>
         <th>
             @Html.DisplayName("Transaction For")
         </th>
-        <th></th>
-    </tr>
+        <th class="d-none d-sm-block">
 
+        </th>
+        <th class="d-none d-lg-table-cell">
+
+        </th>
+    </tr>
     @foreach (var item in Model.Transactions)
     {
         <tr>
             <td>
                 @Html.DisplayFor(modelItem => item.Person.PersonName)
             </td>
-            <td>
+            <td class="d-none d-lg-table-cell">
                 @Html.DisplayFor(modelItem => item.TranscationType)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.Amount)
             </td>
-            <td>
+            <td class="d-none d-lg-table-cell">
                 @Html.DisplayFor(modelItem => item.TransactionDate)
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
             </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new { id = item.TranscationGuid }) |
+            <td class="d-none d-sm-block">
+                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
 
-                @Html.ActionLink("Delete", "Delete", new { id = item.TranscationGuid })
+                @{ MvcHtmlString deleteS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(deleteS.ToString()))
+            </td>
+            <td class="d-none d-lg-table-cell">
+                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
+
+                @{ MvcHtmlString delete = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete", "Delete", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(delete.ToString()))
             </td>
         </tr>
     }
-
 </table>
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+}
