@@ -1,0 +1,45 @@
+﻿@model IEnumerable<MixupActivity.Models.Technology>
+
+@{
+    ViewBag.Title = "Index";
+}
+
+<h2></h2>
+<table id="dtBasicExample" class="table table-striped table-bordered">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.TechnologyName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Priority)
+        </th>
+        <th class="d-none d-lg-table-cell">
+            @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>New", "Create", null, new { @class = "btn btn-info btn-md" }); }
+            @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
+        </th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.TechnologyName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Priority)
+            </td>
+            <td class="d-none d-lg-table-cell">
+                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
+
+                @{ MvcHtmlString details = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Details", "Details", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(details.ToString()))
+
+                @{ MvcHtmlString delete = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete", "Delete", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(delete.ToString()))
+            </td>
+        </tr>
+    }
+
+</table>
+

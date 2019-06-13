@@ -21,6 +21,11 @@ namespace MixupActivity.Context
             .WithMany(g => g.Transacctions)
             .HasForeignKey<Guid>(s => s.PersonGuid);
 
+            modelBuilder.Entity<TechnologyContent>()
+                .HasRequired<Technology>(x => x.Technology)
+                .WithMany(x => x.TechnologyContents)
+                .HasForeignKey<Guid>(s => s.TechnologyGuid);
+
             //modelBuilder.Entity<Transaction>()
             //.HasRequired<TransactionFor>(s => s.TransactionFor)
             //.WithMany(g => g.Transactions)
@@ -32,5 +37,7 @@ namespace MixupActivity.Context
         public DbSet<Transaction> Transactions { get; set; }
         public DbSet<Person> Persons { get; set; }
         public DbSet<TransactionFor> TransactionFor { get; set; }
+        public DbSet<Technology> Technologies { get; set; }
+        public DbSet<TechnologyContent> TechnologyContent { get; set; }
     }
 }
