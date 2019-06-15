@@ -8,12 +8,13 @@ using Newtonsoft.Json;
 namespace MixupActivity.Controllers
 {
     using System.Web.Security;
-
+    using log4net;
     using MixupActivity.Context;
     using MixupActivity.Models;
 
     public class AccountController : Controller
     {
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public ActionResult Login()
         {
             return View();
@@ -83,18 +84,26 @@ namespace MixupActivity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Register(Person model)
         {
-            if (ModelState.IsValid)
+            try
             {
-                using (AppContext context = new AppContext())
+                
+                if (ModelState.IsValid)
                 {
-                    context.Persons.Add(model);
-                    var result = context.SaveChanges();
-                    if (result >= 0)
+                    using (AppContext context = new AppContext())
                     {
-                        return RedirectToAction("Index", "Transactions");
+                        context.Persons.Add(model);
+                        var result = context.SaveChanges();
+                        if (result >= 0)
+                        {
+                            return RedirectToAction("Index", "Transactions");
+                        }
+                        ModelState.AddModelError("RegisterFailed", "Failed to register. Please try again.");
                     }
-                    ModelState.AddModelError("RegisterFailed", "Failed to register. Please try again.");
                 }
+            }
+            catch(Exception ex)
+            {
+                log.Error("logging info", ex);
             }
 
             // If we got this far, something failed, redisplay form
