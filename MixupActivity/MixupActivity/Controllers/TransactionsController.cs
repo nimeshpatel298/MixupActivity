@@ -81,6 +81,7 @@ namespace MixupActivity.Controllers
         {
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new {item = "Debit", value="2"}}, "value", "item");
             return View(new Transaction() { TransactionDate = DateTime.Now.Date });
         }
 
@@ -101,6 +102,7 @@ namespace MixupActivity.Controllers
 
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
             return View(transaction);
         }
 
@@ -224,6 +226,7 @@ namespace MixupActivity.Controllers
             {
                 return HttpNotFound();
             }
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);
@@ -242,6 +245,7 @@ namespace MixupActivity.Controllers
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);

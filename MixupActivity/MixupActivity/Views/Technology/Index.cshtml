@@ -13,7 +13,7 @@
         <th>
             @Html.DisplayNameFor(model => model.Priority)
         </th>
-        <th class="d-none d-lg-table-cell">
+        <th>
             @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>New", "Create", null, new { @class = "btn btn-info btn-md" }); }
             @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
         </th>
@@ -28,7 +28,7 @@
             <td>
                 @Html.DisplayFor(modelItem => item.Priority)
             </td>
-            <td class="d-none d-lg-table-cell">
+            <td>
                 @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
 
