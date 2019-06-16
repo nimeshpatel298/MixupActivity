@@ -21,45 +21,80 @@ namespace MixupActivity.Controllers
             return View(db.Technologies.ToList());
         }
 
-        // GET: /Technology/Details/5
         public ActionResult Details(Guid? id, int start = 0, int size = 1)
         {
             if (id == null)
             {
                 return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
             }
-
-            Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyGuid == id);
-
+            Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyContents.Any(y => y.TechnologyContentGuid == id));
             if (technology == null)
             {
                 return HttpNotFound();
             }
+            var orderedItems = technology.TechnologyContents.AsEnumerable()
+    .Select((entry, index) => new
+    {
+        Guid = entry.TechnologyContentGuid,
+        Rank = index + 1
+    });
 
-            if (!technology.TechnologyContents.Skip(start).Take(size).Any())
-            {
-                start = 0;
-                ViewBag.NextStart = 0;
-            }
-            else
-                ViewBag.NextStart = start + size;
+            var currentitem = orderedItems.FirstOrDefault(x => x.Guid == id);
+            ViewBag.PreviousGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1) == null ? new Guid() :orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1).Guid;
+            ViewBag.NextGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1).Guid;
 
-            ViewBag.Size = size;
-
-            if (start - size <= 0)
-                ViewBag.previousStart = 0;
-            else
-                ViewBag.previousStart = start - size;
-
-            technology.TechnologyContents = technology.TechnologyContents.Skip(start).Take(size).ToList();
+            ViewBag.TechnologyContent = technology.TechnologyContents.ToList();
+            technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id).ToList();
             foreach (var technologyTechnologyContent in technology.TechnologyContents)
             {
                 technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);
                 technologyTechnologyContent.Example = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Example);
             }
 
+
+
             return View(technology);
         }
+
+        // GET: /Technology/Details/5
+        //    public ActionResult Details(Guid? id, int start = 0, int size = 1)
+        //{
+        //    if (id == null)
+        //    {
+        //        return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+        //    }
+
+        //    Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyGuid == id);
+
+        //    if (technology == null)
+        //    {
+        //        return HttpNotFound();
+        //    }
+
+        //    if (!technology.TechnologyContents.Skip(start).Take(size).Any())
+        //    {
+        //        start = 0;
+        //        ViewBag.NextStart = 0;
+        //    }
+        //    else
+        //        ViewBag.NextStart = start + size;
+
+        //    ViewBag.Size = size;
+
+        //    if (start - size <= 0)
+        //        ViewBag.previousStart = 0;
+        //    else
+        //        ViewBag.previousStart = start - size;
+
+        //    technology.TechnologyContents = technology.TechnologyContents.Skip(start).Take(size).ToList();
+        //    foreach (var technologyTechnologyContent in technology.TechnologyContents)
+        //    {
+        //        technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);
+        //        technologyTechnologyContent.Example = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Example);
+        //    }
+
+        //    return View(technology);
+        //}
 
         // GET: /Technology/Create
         public ActionResult Create()

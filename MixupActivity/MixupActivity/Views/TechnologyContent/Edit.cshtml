@@ -18,7 +18,7 @@
                     Edit Technology Content
                 </div>
                 <div class="col-lg-offset-6 col-lg-2 col-sm-offset-6 col-sm-2 col-xs-offset-2 col-xs-4">
-                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Details", "Technology", new { id = Model.TechnologyGuid }, new { @class = "btn btn-info btn-md" }); }
+                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Details", "Technology", new { id = Model.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
                     @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
                 </div>
 

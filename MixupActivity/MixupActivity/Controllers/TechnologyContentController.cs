@@ -34,7 +34,7 @@ namespace MixupActivity.Controllers
                 technologyContent.TechnologyContentGuid = Guid.NewGuid();
                 db.TechnologyContent.Add(technologyContent);
                 db.SaveChanges();
-                return RedirectToAction("Index", "Technology");
+                return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
             }
 
             ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
@@ -54,7 +54,8 @@ namespace MixupActivity.Controllers
             {
                 return HttpNotFound();
             }
-
+            technologyContent.Description = HttpContext.Server.HtmlDecode(technologyContent.Description);
+            technologyContent.Example = HttpContext.Server.HtmlDecode(technologyContent.Example);
             ViewBag.TechnologyGuid = new SelectList(db.Technologies, "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
             return View(technologyContent);
         }
@@ -68,8 +69,10 @@ namespace MixupActivity.Controllers
             if (ModelState.IsValid)
             {
                 db.Entry(technologyContent).State = EntityState.Modified;
+                technologyContent.Description = HttpContext.Server.HtmlEncode(technologyContent.Description);
+                technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
                 db.SaveChanges();
-                return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyGuid });
+                return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
             }
             ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
             return View(technologyContent);

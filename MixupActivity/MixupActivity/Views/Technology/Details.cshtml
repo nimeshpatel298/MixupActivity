@@ -17,30 +17,71 @@
         }
 
     }
+    <div class="navbar navbar-inverse  navbar-light fixed-top fixed-top-2">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar2">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                Topics
+
+            </div>
+            <div class="navbar-collapse collapse" id="navbar2">
+                <ul class="nav navbar-nav flex-column">
+                    @foreach (var contentitem in ViewBag.TechnologyContent as IEnumerable<MixupActivity.Models.TechnologyContent>)
+                    {
+                        <li> @Html.ActionLink(contentitem.Topic.ToString(), "Details", "Technology", new { id = contentitem.TechnologyContentGuid }, null) </li>
+                    }
+                </ul>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-primary">
         @foreach (var item in Model.TechnologyContents)
         {
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-lg-4 col-sm-4 col-xs-6">
+                    <div class="col-lg-4 col-sm-4 col-xs-4">
                         @Html.DisplayFor(modelItem => item.Topic)
                     </div>
-                    <div class="col-lg-offset-4 col-lg-4 col-sm-4 col-xs-6">
+                    <div class="d-none d-lg-table-cell col-lg-offset-4 col-lg-4 col-sm-4 col-xs-8">
                         <div class="row">
                             <div class="col-lg-4 col-sm-2 col-xs-4">
-                                @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" }); }
+                                @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" });
+                                }
                                 @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
                             </div>
                             <div class="col-lg-4 col-sm-2 col-xs-4">
 
 
-                                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" });
+                                }
                                 @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
                             </div>
                             <div class="col-lg-4 col-sm-2 col-xs-4">
 
                                 @{ MvcHtmlString returnlink = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(returnlink.ToString()))
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="d-none d-sm-block col-lg-offset-4 col-lg-4 col-sm-4 col-xs-8">
+                        <div class="row">
+                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                                @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
+                                @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
+                            </div>
+                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                                @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
+                            </div>
+                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
+                                @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
 
                             </div>
                         </div>
@@ -66,7 +107,10 @@
                     Other Reference:
                 </b>
                 <br />
-                @{
+
+                @if (item.Link != null)
+                {
+
                     string[] links = item.Link.Split(new[] { "\r\n", "\r", "\n", " " }, StringSplitOptions.None);
                     string content = "<ul>";
 
@@ -78,20 +122,30 @@
                         }
                     }
                     content += "</ul>";
+
+                    @Html.Raw(content)
                 }
-                @Html.Raw(content)
+
             </div>
 
             <div class="panel-footer">
                 <div class="row">
                     <div class="form-group">
                         <div class="col-lg-2 col-xs-6">
-                            @{ MvcHtmlString previous = Html.ActionLink("<span class='glyphicon glyphicon-arrow-left'></span>Previous", "Details", "Technology", new { id = Model.TechnologyGuid, start = (int)ViewBag.previousStart, size = 1 }, new { @class = "btn btn-info btn-md" }); }
-                            @Html.Raw(HttpUtility.HtmlDecode(previous.ToString()))
+
+                            @if (ViewBag.PreviousGuid != new Guid())
+                            {
+                                MvcHtmlString previous = Html.ActionLink("<span class='glyphicon glyphicon-arrow-left'></span>Previous", "Details", "Technology", new { id = ViewBag.PreviousGuid }, new { @class = "btn btn-info btn-md" });
+                                <span>@Html.Raw(HttpUtility.HtmlDecode(previous.ToString()))</span>
+
+                            }
                         </div>
                         <div class="col-lg-offset-9 col-lg-1 col-xs-6">
-                            @{ MvcHtmlString next = Html.ActionLink("<span class='glyphicon glyphicon-arrow-right'></span>Next", "Details", "Technology", new { id = Model.TechnologyGuid, start = (int)ViewBag.NextStart, size = 1 }, new { @class = "btn btn-info btn-md" }); }
-                            @Html.Raw(HttpUtility.HtmlDecode(next.ToString()))
+                            @if (ViewBag.NextGuid != new Guid())
+                            {
+                                MvcHtmlString next = Html.ActionLink("<span class='glyphicon glyphicon-arrow-right'></span>Next", "Details", "Technology", new { id = ViewBag.NextGuid }, new { @class = "btn btn-info btn-md" });
+                                <span>@Html.Raw(HttpUtility.HtmlDecode(next.ToString()))</span>;
+                            }
                         </div>
                     </div>
                 </div>
