@@ -71,16 +71,16 @@
 
                     <div class="d-none d-sm-block col-lg-offset-4 col-lg-4 col-sm-4 col-xs-8">
                         <div class="row">
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                            <div class="col-lg-4 col-sm-2 col-xs-offset-4 col-xs-2">
                                 @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
                             </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                            <div class="col-lg-4 col-sm-2 col-xs-2">
                                 @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
                             </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
-                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
+                            <div class="col-lg-4 col-sm-2 col-xs-2">
+                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
 
                             </div>
