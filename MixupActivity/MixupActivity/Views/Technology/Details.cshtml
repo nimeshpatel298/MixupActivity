@@ -43,45 +43,53 @@
         {
             <div class="panel-heading">
                 <div class="row">
-                    <div class="col-lg-4 col-sm-4 col-xs-4">
+                    <div class="col-lg-7 col-sm-4 col-xs-5">
                         @Html.DisplayFor(modelItem => item.Topic)
                     </div>
-                    <div class="d-none d-lg-table-cell col-lg-offset-4 col-lg-4 col-sm-4 col-xs-8">
+                    <div class="d-none d-lg-table-cell col-lg-5 col-sm-4 col-xs-8">
                         <div class="row">
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
-                                @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" });
+                            <div class="">
+                                @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" });
                                 }
                                 @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
-                            </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
-
-
+                            @*</div>
+                            <div class="">*@
                                 @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" });
                                 }
                                 @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
-                            </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-4">
+                            @*</div>
+                            <div class="">*@
 
                                 @{ MvcHtmlString returnlink = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(returnlink.ToString()))
+                            @*</div>
+                            <div class="">*@
+
+                                @{ MvcHtmlString deleteLink = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete Content", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                                @Html.Raw(HttpUtility.HtmlDecode(deleteLink.ToString()))
 
                             </div>
                         </div>
                     </div>
 
-                    <div class="d-none d-sm-block col-lg-offset-4 col-lg-4 col-sm-4 col-xs-8">
+                    <div class="d-none d-sm-block col-lg-5 col-sm-4 col-xs-7">
                         <div class="row">
-                            <div class="col-lg-4 col-sm-2 col-xs-offset-4 col-xs-2">
-                                @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
+                            <div class="">
+                                @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
-                            </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-2">
-                                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                            @*</div>
+                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
-                            </div>
-                            <div class="col-lg-4 col-sm-2 col-xs-2">
-                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
+                            @*</div>
+                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-sm" }); }
                                 @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
+
+                            @*</div>
+                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                @{ MvcHtmlString deletelinkS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
+                                @Html.Raw(HttpUtility.HtmlDecode(deletelinkS.ToString()))
 
                             </div>
                         </div>

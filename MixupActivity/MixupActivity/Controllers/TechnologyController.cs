@@ -32,7 +32,7 @@ namespace MixupActivity.Controllers
             {
                 return HttpNotFound();
             }
-            var orderedItems = technology.TechnologyContents.AsEnumerable()
+            var orderedItems = technology.TechnologyContents.Where(x => x.IsActive).AsEnumerable()
     .Select((entry, index) => new
     {
         Guid = entry.TechnologyContentGuid,
@@ -43,8 +43,8 @@ namespace MixupActivity.Controllers
             ViewBag.PreviousGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1) == null ? new Guid() :orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1).Guid;
             ViewBag.NextGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1).Guid;
 
-            ViewBag.TechnologyContent = technology.TechnologyContents.ToList();
-            technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id).ToList();
+            ViewBag.TechnologyContent = technology.TechnologyContents.Where(x => x.IsActive).ToList();
+            technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id && x.IsActive).ToList();
             foreach (var technologyTechnologyContent in technology.TechnologyContents)
             {
                 technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);

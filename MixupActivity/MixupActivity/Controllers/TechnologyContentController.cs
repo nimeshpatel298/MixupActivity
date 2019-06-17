@@ -78,15 +78,35 @@ namespace MixupActivity.Controllers
             return View(technologyContent);
         }
 
+        // GET: /Technology/Delete/5
+        public ActionResult Delete(Guid? id)
+        {
+            if (id == null)
+            {
+                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+            }
+
+            var technologyContent = db.TechnologyContent.Find(id);
+
+            if (technologyContent == null)
+            {
+                return HttpNotFound();
+            }
+
+            return View(technologyContent);
+        }
+
         // POST: /TechnologyContent/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(Guid id)
         {
             TechnologyContent technologyContent = db.TechnologyContent.Find(id);
-            db.TechnologyContent.Remove(technologyContent);
+            technologyContent.IsActive = false;
+           // db.TechnologyContent.Remove(technologyContent);
             db.SaveChanges();
-            return RedirectToAction("Index", "Technology");
+            var guid = db.TechnologyContent.FirstOrDefault() == null ? new Guid() : db.TechnologyContent.FirstOrDefault().TechnologyContentGuid;
+            return RedirectToAction("Details", "TechnologyContent",new { id = guid });
         }
 
         public ActionResult LikeContent(bool like, Guid contentGuid)
