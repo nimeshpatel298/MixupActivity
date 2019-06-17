@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using log4net;
 using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
@@ -13,12 +14,20 @@ namespace MixupActivity.Controllers
     public class TechnologyContentController : Controller
     {
         private Context.AppContext db = new Context.AppContext();
-
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         // GET: /TechnologyContent/Create
         public ActionResult Create()
         {
-            ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName");
-            return View(new TechnologyContent());
+            try
+            {
+                ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName");
+                return View(new TechnologyContent());
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyContentController  Create- Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         // POST: /TechnologyContent/Create
@@ -27,37 +36,57 @@ namespace MixupActivity.Controllers
         [ValidateInput(false)]
         public ActionResult Create([Bind(Exclude = "Technology")] TechnologyContent technologyContent)
         {
-            if (ModelState.IsValid)
+            try
             {
-                technologyContent.Description = HttpContext.Server.HtmlEncode(technologyContent.Description);
-                technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
-                technologyContent.TechnologyContentGuid = Guid.NewGuid();
-                db.TechnologyContent.Add(technologyContent);
-                db.SaveChanges();
-                return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
-            }
+                if (ModelState.IsValid)
+                {
+                    technologyContent.Description = HttpContext.Server.HtmlEncode(technologyContent.Description);
+                    technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
+                    technologyContent.IsActive = true;
+                    technologyContent.TechnologyContentGuid = Guid.NewGuid();
+                    db.TechnologyContent.Add(technologyContent);
+                    db.SaveChanges();
+                    return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
+                }
 
-            ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
-            return View(technologyContent);
+                ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
+                return View(technologyContent);
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyContentController  Create- post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         // GET: /TechnologyContent/Edit/5
         public ActionResult Edit(Guid? id)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
 
-            var technologyContent = db.TechnologyContent.Find(id);
-            if (technologyContent == null)
-            {
-                return HttpNotFound();
+                var technologyContent = db.TechnologyContent.Find(id);
+                if (technologyContent == null)
+                {
+                    return HttpNotFound();
+                }
+                technologyContent.Description = HttpContext.Server.HtmlDecode(technologyContent.Description);
+                technologyContent.Example = HttpContext.Server.HtmlDecode(technologyContent.Example);
+                ViewBag.TechnologyGuid = new SelectList(db.Technologies, "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
+                return View(technologyContent);
             }
-            technologyContent.Description = HttpContext.Server.HtmlDecode(technologyContent.Description);
-            technologyContent.Example = HttpContext.Server.HtmlDecode(technologyContent.Example);
-            ViewBag.TechnologyGuid = new SelectList(db.Technologies, "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
-            return View(technologyContent);
+            catch (Exception ex)
+            {
+                log.Error("TechnologyContentController  Edit- Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new
+                {
+                    exception = ex
+                });
+            }
         }
 
         // POST: /TechnologyContent/Edit/5
@@ -66,34 +95,50 @@ namespace MixupActivity.Controllers
         [ValidateInput(false)]
         public ActionResult Edit([Bind(Exclude = "Technology")] TechnologyContent technologyContent)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(technologyContent).State = EntityState.Modified;
-                technologyContent.Description = HttpContext.Server.HtmlEncode(technologyContent.Description);
-                technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
-                db.SaveChanges();
-                return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
+                if (ModelState.IsValid)
+                {
+                    db.Entry(technologyContent).State = EntityState.Modified;
+                    technologyContent.Description = HttpContext.Server.HtmlEncode(technologyContent.Description);
+                    technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
+                    db.SaveChanges();
+                    return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
+                }
+                ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
+                return View(technologyContent);
             }
-            ViewBag.TechnologyGuid = new SelectList(db.Technologies.AsNoTracking(), "TechnologyGuid", "TechnologyName", technologyContent.TechnologyGuid);
-            return View(technologyContent);
+            catch (Exception ex)
+            {
+                log.Error("TechnologyContentController  Edit- Post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         // GET: /Technology/Delete/5
         public ActionResult Delete(Guid? id)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                var technologyContent = db.TechnologyContent.Find(id);
+
+                if (technologyContent == null)
+                {
+                    return HttpNotFound();
+                }
+
+                return View(technologyContent);
             }
-
-            var technologyContent = db.TechnologyContent.Find(id);
-
-            if (technologyContent == null)
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                log.Error("TechnologyContentController  Delete- Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
             }
-
-            return View(technologyContent);
         }
 
         // POST: /TechnologyContent/Delete/5
@@ -101,12 +146,20 @@ namespace MixupActivity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(Guid id)
         {
-            TechnologyContent technologyContent = db.TechnologyContent.Find(id);
-            technologyContent.IsActive = false;
-           // db.TechnologyContent.Remove(technologyContent);
-            db.SaveChanges();
-            var guid = db.TechnologyContent.FirstOrDefault() == null ? new Guid() : db.TechnologyContent.FirstOrDefault().TechnologyContentGuid;
-            return RedirectToAction("Details", "TechnologyContent",new { id = guid });
+            try
+            {
+                TechnologyContent technologyContent = db.TechnologyContent.Find(id);
+                technologyContent.IsActive = false;
+                // db.TechnologyContent.Remove(technologyContent);
+                db.SaveChanges();
+                var guid = db.TechnologyContent.FirstOrDefault(x => x.IsActive) == null ? new Guid() : db.TechnologyContent.FirstOrDefault(x => x.IsActive).TechnologyContentGuid;
+                return RedirectToAction("Details", "Technology", new { id = guid });
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyContentController  Delete- Post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         public ActionResult LikeContent(bool like, Guid contentGuid)

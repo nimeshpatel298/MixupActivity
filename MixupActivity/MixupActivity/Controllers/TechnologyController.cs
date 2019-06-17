@@ -6,54 +6,68 @@ using System.Linq;
 using System.Net;
 using System.Web;
 using System.Web.Mvc;
+using log4net;
 using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
 {
     public class TechnologyController : Controller
     {
-
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         private Context.AppContext db = new Context.AppContext();
 
         // GET: /Technology/
         public ActionResult Index()
         {
-            return View(db.Technologies.ToList());
+            try
+            {
+                return View(db.Technologies.ToList());
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  Index Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         public ActionResult Details(Guid? id, int start = 0, int size = 1)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+                Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyContents.Any(y => y.TechnologyContentGuid == id));
+                if (technology == null)
+                {
+                    return HttpNotFound();
+                }
+                var orderedItems = technology.TechnologyContents.Where(x => x.IsActive).AsEnumerable()
+                                    .Select((entry, index) => new
+                                    {
+                                        Guid = entry.TechnologyContentGuid,
+                                        Rank = index + 1
+                                    });
+
+                var currentitem = orderedItems.FirstOrDefault(x => x.Guid == id);
+                ViewBag.PreviousGuid = currentitem == null || orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1).Guid;
+                ViewBag.NextGuid = currentitem == null || orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1).Guid;
+
+                ViewBag.TechnologyContent = technology.TechnologyContents.Where(x => x.IsActive).ToList();
+                technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id && x.IsActive).ToList();
+                foreach (var technologyTechnologyContent in technology.TechnologyContents)
+                {
+                    technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);
+                    technologyTechnologyContent.Example = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Example);
+                }
+                return View(technology);
             }
-            Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyContents.Any(y => y.TechnologyContentGuid == id));
-            if (technology == null)
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                log.Error("TechnologyController  Details - Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
             }
-            var orderedItems = technology.TechnologyContents.Where(x => x.IsActive).AsEnumerable()
-    .Select((entry, index) => new
-    {
-        Guid = entry.TechnologyContentGuid,
-        Rank = index + 1
-    });
-
-            var currentitem = orderedItems.FirstOrDefault(x => x.Guid == id);
-            ViewBag.PreviousGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1) == null ? new Guid() :orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1).Guid;
-            ViewBag.NextGuid = orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1).Guid;
-
-            ViewBag.TechnologyContent = technology.TechnologyContents.Where(x => x.IsActive).ToList();
-            technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id && x.IsActive).ToList();
-            foreach (var technologyTechnologyContent in technology.TechnologyContents)
-            {
-                technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);
-                technologyTechnologyContent.Example = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Example);
-            }
-
-
-
-            return View(technology);
         }
 
         // GET: /Technology/Details/5
@@ -99,7 +113,18 @@ namespace MixupActivity.Controllers
         // GET: /Technology/Create
         public ActionResult Create()
         {
-            return View();
+            try
+            {
+                return View();
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  Create -Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new
+                {
+                    exception = ex
+                });
+            }
         }
 
         // POST: /Technology/Create
@@ -107,32 +132,52 @@ namespace MixupActivity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Create([Bind(Exclude = "TechnologyContents")] Technology technology)
         {
-            if (ModelState.IsValid)
+            try
             {
-                technology.TechnologyGuid = Guid.NewGuid();
-                db.Technologies.Add(technology);
-                db.SaveChanges();
-                return RedirectToAction("Index");
-            }
+                if (ModelState.IsValid)
+                {
+                    technology.TechnologyGuid = Guid.NewGuid();
+                    db.Technologies.Add(technology);
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
 
-            return View(technology);
+                return View(technology);
+
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  Create -Post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new
+                {
+                    exception = ex
+                });
+            }
         }
 
         // GET: /Technology/Edit/5
         public ActionResult Edit(Guid? id)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
-            }
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
 
-            var technology = db.Technologies.Find(id);
-            if (technology == null)
+                var technology = db.Technologies.Find(id);
+                if (technology == null)
+                {
+                    return HttpNotFound();
+                }
+
+                return View(technology);
+            }
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                log.Error("TechnologyController  Edit- Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
             }
-
-            return View(technology);
         }
 
         // POST: /Technology/Edit/5
@@ -140,31 +185,47 @@ namespace MixupActivity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult Edit([Bind(Exclude = "TechnologyContents")] Technology technology)
         {
-            if (ModelState.IsValid)
+            try
             {
-                db.Entry(technology).State = EntityState.Modified;
-                db.SaveChanges();
-                return RedirectToAction("Index");
+                if (ModelState.IsValid)
+                {
+                    db.Entry(technology).State = EntityState.Modified;
+                    db.SaveChanges();
+                    return RedirectToAction("Index");
+                }
+                return View(technology);
             }
-            return View(technology);
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  Edit- Post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         // GET: /Technology/Delete/5
         public ActionResult Delete(Guid? id)
         {
-            if (id == null)
+            try
             {
-                return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                if (id == null)
+                {
+                    return new HttpStatusCodeResult(HttpStatusCode.BadRequest);
+                }
+
+                var technology = db.Technologies.Find(id);
+
+                if (technology == null)
+                {
+                    return HttpNotFound();
+                }
+
+                return View(technology);
             }
-
-            var technology = db.Technologies.Find(id);
-
-            if (technology == null)
+            catch (Exception ex)
             {
-                return HttpNotFound();
+                log.Error("TechnologyController  Delete- Get Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
             }
-
-            return View(technology);
         }
 
         // POST: /Technology/Delete/5
@@ -172,10 +233,18 @@ namespace MixupActivity.Controllers
         [ValidateAntiForgeryToken]
         public ActionResult DeleteConfirmed(Guid id)
         {
-            var technology = db.Technologies.Find(id);
-            db.Technologies.Remove(technology);
-            db.SaveChanges();
-            return RedirectToAction("Index");
+            try
+            {
+                var technology = db.Technologies.Find(id);
+                db.Technologies.Remove(technology);
+                db.SaveChanges();
+                return RedirectToAction("Index");
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  Delete- Post Action : " + ex.Message);
+                return RedirectToAction("Index", "Error", new { exception = ex });
+            }
         }
 
         protected override void Dispose(bool disposing)
@@ -186,39 +255,5 @@ namespace MixupActivity.Controllers
             }
             base.Dispose(disposing);
         }
-
-        //public ActionResult Upload(FormCollection formCollection)
-        //{
-        //    if (Request != null)
-        //    {
-        //        HttpPostedFileBase file = Request.Files["UploadedFile"];
-        //        if ((file != null) && (file.ContentLength > 0) && !string.IsNullOrEmpty(file.FileName))
-        //        {
-        //            var contentList = new List<TechnologyContent>();
-        //            using (var package = new ExcelPackage(file.InputStream))
-        //            {
-        //                var currentSheet = package.Workbook.Worksheets;
-        //                var workSheet = currentSheet.First();
-        //                //var noOfCol = workSheet.Dimension.End.Column;
-        //                var noOfRow = workSheet.Dimension.End.Row;
-        //                for (int rowIterator = 2; rowIterator <= noOfRow; rowIterator++)
-        //                {
-        //                    var content = new TechnologyContent();
-        //                    content.Topic = workSheet.Cells[rowIterator, 1].Value.ToString();
-        //                    content.Description = workSheet.Cells[rowIterator, 2].Value.ToString();
-        //                    content.Example = workSheet.Cells[rowIterator, 3].Value.ToString();
-        //                    content.Link = workSheet.Cells[rowIterator, 3].Value.ToString();
-        //                    content.TechnologyGuid = new Guid(formCollection["TechnologyGuid"]);
-        //                    content.TechnologyContentGuid = Guid.NewGuid();
-
-        //                    contentList.Add(content);
-        //                }
-        //            }
-        //            db.TechnologyContent.AddRange(contentList);
-        //            db.SaveChanges();
-        //        }
-        //    }
-        //    return RedirectToAction("Index");
-        //}
     }
 }

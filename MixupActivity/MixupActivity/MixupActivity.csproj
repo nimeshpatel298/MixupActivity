@@ -173,6 +173,7 @@
     <Compile Include="Context\AppContext.cs" />
     <Compile Include="Context\AppDataInitializer.cs" />
     <Compile Include="Controllers\AccountController.cs" />
+    <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\TechnologyContentController.cs" />
     <Compile Include="Controllers\TechnologyController.cs" />
@@ -257,6 +258,7 @@
     <Content Include="Views\Technology\Edit.cshtml" />
     <Content Include="Views\Technology\Delete.cshtml" />
     <Content Include="Views\TechnologyContent\Delete.cshtml" />
+    <Content Include="Views\Error\Index.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
