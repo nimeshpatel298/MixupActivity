@@ -182,6 +182,15 @@
     <Compile Include="Global.asax.cs">
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201906160841181_InitialCreate.cs" />
+    <Compile Include="Migrations\201906160841181_InitialCreate.Designer.cs">
+      <DependentUpon>201906160841181_InitialCreate.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201906171643510_Mixup-v1.cs" />
+    <Compile Include="Migrations\201906171643510_Mixup-v1.Designer.cs">
+      <DependentUpon>201906171643510_Mixup-v1.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Technology.cs" />
     <Compile Include="Models\TechnologyContent.cs" />
@@ -263,6 +272,14 @@
     <Content Include="Content\bootstrap-theme.min.css.map" />
     <Content Include="Content\bootstrap-theme.css.map" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Migrations\201906160841181_InitialCreate.resx">
+      <DependentUpon>201906160841181_InitialCreate.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201906171643510_Mixup-v1.resx">
+      <DependentUpon>201906171643510_Mixup-v1.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>

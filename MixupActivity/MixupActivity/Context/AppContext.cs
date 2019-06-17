@@ -11,7 +11,8 @@ namespace MixupActivity.Context
     {
         public AppContext() : base("AppContextEntities")
         {
-           //Database.SetInitializer(new AppDataInitializer());
+            //Database.SetInitializer(new AppDataInitializer());
+            Database.SetInitializer(new MigrateDatabaseToLatestVersion<AppContext, MixupActivity.Migrations.Configuration>());
         }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
