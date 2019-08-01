@@ -1,12 +1,10 @@
 ﻿@using Microsoft.Ajax.Utilities
 @model MixupActivity.Models.Technology
-
 @{
     ViewBag.Title = "Details";
 }
-
+<button onclick="topFunction()" id="myBtn" title="Go to top">Top</button>
 <h2>@Html.DisplayFor(model => model.TechnologyName)</h2>
-
 <div>
     <hr />
     @if (!Model.TechnologyContents.Any())
@@ -17,7 +15,7 @@
         }
 
     }
-    <div class="navbar navbar-inverse  navbar-light fixed-top fixed-top-2">
+    <div class="d-none d-sm-fullBlock navbar navbar-inverse  navbar-light fixed-top fixed-top-2">
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#navbar2">
@@ -38,126 +36,158 @@
             </div>
         </div>
     </div>
-    <div class="panel panel-primary">
-        @foreach (var item in Model.TechnologyContents)
-        {
-            <div class="panel-heading">
-                <div class="row">
-                    <div class="col-lg-7 col-sm-4 col-xs-5">
-                        @Html.DisplayFor(modelItem => item.Topic)
-                    </div>
-                    <div class="d-none d-lg-table-cell col-lg-5 col-sm-4 col-xs-8">
-                        <div class="row">
-                            <div class="">
-                                @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" });
-                                }
-                                @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
-                            @*</div>
-                            <div class="">*@
-                                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" });
-                                }
-                                @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
-                            @*</div>
-                            <div class="">*@
 
-                                @{ MvcHtmlString returnlink = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(returnlink.ToString()))
-                            @*</div>
-                            <div class="">*@
+    <div class="row">
 
-                                @{ MvcHtmlString deleteLink = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete Content", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(deleteLink.ToString()))
 
+        <div class="panel panel-primary">
+            @foreach (var item in Model.TechnologyContents)
+            {
+                <div class="panel-heading">
+                    <div class="row">
+                        <div class="col-lg-7 col-sm-4 col-xs-5">
+                            @Html.DisplayFor(modelItem => item.Topic)
+                        </div>
+                        <div class="d-none d-lg-table-cell col-lg-5 col-sm-4 col-xs-8">
+                            <div class="row">
+                                <div class="">
+                                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
+                                    @*</div>
+                                        <div class="">*@
+                                    @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
+                                    @*</div>
+                                        <div class="">*@
+                                    @{ MvcHtmlString returnlink = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(returnlink.ToString()))
+                                    @*</div>
+                                        <div class="">*@
+                                    @{ MvcHtmlString deleteLink = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete Content", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(deleteLink.ToString()))
+                                </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div class="d-none d-sm-block col-lg-5 col-sm-4 col-xs-7">
-                        <div class="row">
-                            <div class="">
-                                @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
-                            @*</div>
-                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
-                                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
-                            @*</div>
-                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
-                                @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-sm" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
-
-                            @*</div>
-                            <div class="col-lg-4 col-sm-2 col-xs-2">*@
-                                @{ MvcHtmlString deletelinkS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
-                                @Html.Raw(HttpUtility.HtmlDecode(deletelinkS.ToString()))
-
+                        <div class="d-none d-sm-block col-lg-5 col-sm-4 col-xs-7">
+                            <div class="row">
+                                <div class="">
+                                    @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
+                                    @*</div>
+                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
+                                    @*</div>
+                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-sm" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
+                                    @*</div>
+                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    @{ MvcHtmlString deletelinkS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
+                                    @Html.Raw(HttpUtility.HtmlDecode(deletelinkS.ToString()))
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="panel-body" style="min-height: 600px;">
-                @Html.Raw(item.Description)
-                <br />
-                <br />
-                <br />
-                <b>
-                    @Html.DisplayNameFor(modelItem => item.Example) :
-                </b>
+                <div class="panel-body" style="min-height: 600px;">
+                    <div class="d-none d-lg-table-cell col-lg-3 col-sm-4 col-xs-0">
+                        <ul class="nav flex-column">
+                            @foreach (var contentitem1 in ViewBag.TechnologyContent as IEnumerable<MixupActivity.Models.TechnologyContent>)
+                            {
+                                string classTemp = "nav-link backBlue";
+                                if (contentitem1.TechnologyContentGuid == item.TechnologyContentGuid)
+                                {
+                                    classTemp = "nav-link backDarkBlue";
+                                }
 
-                @Html.Raw(item.Example)
+                                <li class="nav-item"> @Html.ActionLink(contentitem1.Topic.ToString(), "Details", "Technology", new { id = contentitem1.TechnologyContentGuid }, new { @class = classTemp, id = "menuClick" }) </li>
+                            }
+                        </ul>
+                    </div>
+                    <div class="col-lg-9 col-sm-4 col-xs-12">
+                        @Html.Raw(item.Description)
 
-                <br />
-                <br />
-                <br />
-                <b>
-                    Other Reference:
-                </b>
-                <br />
-
-                @if (item.Link != null)
-                {
-
-                    string[] links = item.Link.Split(new[] { "\r\n", "\r", "\n", " " }, StringSplitOptions.None);
-                    string content = "<ul>";
-
-                    foreach (var link in links)
-                    {
-                        if (!link.Trim().IsNullOrWhiteSpace())
+                        @if (item.Example != null)
                         {
-                            content += "<li><a target='_blank' href='" + link + "'>" + link + "</a></li>";
+                            <br />
+                            <br />
+                            <br />
+                            <b>
+                                @Html.DisplayNameFor(modelItem => item.Example) :
+                            </b>
                         }
-                    }
-                    content += "</ul>";
+                        @Html.Raw(item.Example)
 
-                    @Html.Raw(content)
-                }
 
-            </div>
+                        @if (item.Link != null)
+                        {
+                            <br />
+                            <br />
+                            <br />
+                            <b>
+                                Reference:
+                            </b>
+                            <br />
+                            string[] links = item.Link.Split(new[] { "\r\n", "\r", "\n", " " }, StringSplitOptions.None);
+                            string content = "<ul>";
 
-            <div class="panel-footer">
-                <div class="row">
-                    <div class="form-group">
-                        <div class="col-lg-2 col-xs-6">
-
-                            @if (ViewBag.PreviousGuid != new Guid())
+                            foreach (var link in links)
                             {
-                                MvcHtmlString previous = Html.ActionLink("<span class='glyphicon glyphicon-arrow-left'></span>Previous", "Details", "Technology", new { id = ViewBag.PreviousGuid }, new { @class = "btn btn-info btn-md" });
-                                <span>@Html.Raw(HttpUtility.HtmlDecode(previous.ToString()))</span>
+                                if (!link.Trim().IsNullOrWhiteSpace())
+                                {
+                                    content += "<li><a target='_blank' href='" + link + "'>" + link + "</a></li>";
+                                }
+                            }
+                            content += "</ul>";
 
-                            }
-                        </div>
-                        <div class="col-lg-offset-9 col-lg-1 col-xs-6">
-                            @if (ViewBag.NextGuid != new Guid())
-                            {
-                                MvcHtmlString next = Html.ActionLink("<span class='glyphicon glyphicon-arrow-right'></span>Next", "Details", "Technology", new { id = ViewBag.NextGuid }, new { @class = "btn btn-info btn-md" });
-                                <span>@Html.Raw(HttpUtility.HtmlDecode(next.ToString()))</span>;
-                            }
+                            @Html.Raw(content)
+                        }
+                    </div>
+                </div>
+
+                <div class="panel-footer">
+                    <div class="row">
+                        <div class="form-group">
+                            <div class="col-lg-2 col-xs-6">
+                                @if (ViewBag.PreviousGuid != new Guid())
+                                {
+                                    MvcHtmlString previous = Html.ActionLink("<span class='glyphicon glyphicon-arrow-left'></span>Previous", "Details", "Technology", new { id = ViewBag.PreviousGuid }, new { @class = "btn btn-info btn-md" });
+                                    <span>@Html.Raw(HttpUtility.HtmlDecode(previous.ToString()))</span>
+
+                                }
+                            </div>
+                            <div class="col-lg-offset-9 col-lg-1 col-xs-6">
+                                @if (ViewBag.NextGuid != new Guid())
+                                {
+                                    MvcHtmlString next = Html.ActionLink("<span class='glyphicon glyphicon-arrow-right'></span>Next", "Details", "Technology", new { id = ViewBag.NextGuid }, new { @class = "btn btn-info btn-md" });
+                                    <span>@Html.Raw(HttpUtility.HtmlDecode(next.ToString()))</span>;
+                                }
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        }
+            }
+        </div>
     </div>
 </div>
+
+<script>
+    // When the user scrolls down 20px from the top of the document, show the button
+    window.onscroll = function () { scrollFunction() };
+
+    function scrollFunction() {
+        if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20) {
+            document.getElementById("myBtn").style.display = "block";
+        } else {
+            document.getElementById("myBtn").style.display = "none";
+        }
+    }
+
+    // When the user clicks on the button, scroll to the top of the document
+    function topFunction() {
+        document.body.scrollTop = 0;
+        document.documentElement.scrollTop = 150;
+    }
+</script>

@@ -7,6 +7,7 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using System.Web.Security;
+using log4net;
 using MixupActivity.CustomAuthentication;
 using MixupActivity.Models;
 using Newtonsoft.Json;
@@ -15,6 +16,7 @@ namespace MixupActivity
 {
     public class MvcApplication : System.Web.HttpApplication
     {
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         protected void Application_Start()
         {
             AreaRegistration.RegisterAllAreas();
@@ -45,7 +47,7 @@ namespace MixupActivity
             }
             catch(Exception ex)
             {
-
+                log.Error("MvcApplication  Application_PostAuthenticateRequest : " + ex.Message);
             }
         }
     }

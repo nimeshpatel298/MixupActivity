@@ -152,7 +152,8 @@ namespace MixupActivity.Controllers
                 technologyContent.IsActive = false;
                 // db.TechnologyContent.Remove(technologyContent);
                 db.SaveChanges();
-                var guid = db.TechnologyContent.FirstOrDefault(x => x.IsActive) == null ? new Guid() : db.TechnologyContent.FirstOrDefault(x => x.IsActive).TechnologyContentGuid;
+                var guid = db.TechnologyContent.FirstOrDefault(x => x.TechnologyGuid == technologyContent.TechnologyGuid &&  x.IsActive) == null ? new Guid() 
+                    : db.TechnologyContent.FirstOrDefault(x => x.TechnologyGuid == technologyContent.TechnologyGuid && x.IsActive).TechnologyContentGuid;
                 return RedirectToAction("Details", "Technology", new { id = guid });
             }
             catch (Exception ex)
