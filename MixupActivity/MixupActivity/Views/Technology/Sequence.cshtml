@@ -111,7 +111,7 @@
     <div id="reorderHelper" class="light_box" style="display:none;">1. Drag photos to reorder.<br>2. Click 'Save Reordering' when finished.</div>
     <div class="gallery">
         <ul class="reorder_ul reorder-photos-list">
-            @foreach (var item in Model.TechnologyContents.OrderBy(x => x.SeqNo))
+            @foreach (var item in Model.TechnologyContents.Where(x => x.IsActive).OrderBy(x => x.SeqNo))
             {
 
                 var str = "image_li_" + item.TechnologyContentGuid;
