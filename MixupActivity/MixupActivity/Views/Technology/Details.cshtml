@@ -39,7 +39,6 @@
 
     <div class="row">
 
-
         <div class="panel panel-primary">
             @foreach (var item in Model.TechnologyContents)
             {
@@ -54,15 +53,15 @@
                                     @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>Add Content", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-md" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
                                     @*</div>
-                                        <div class="">*@
+                                    <div class="">*@
                                     @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit Content", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
                                     @*</div>
-                                        <div class="">*@
+                                    <div class="">*@
                                     @{ MvcHtmlString returnlink = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Technology", null, new { @class = "btn btn-info btn-md" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(returnlink.ToString()))
                                     @*</div>
-                                        <div class="">*@
+                                    <div class="">*@
                                     @{ MvcHtmlString deleteLink = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete Content", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-md" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(deleteLink.ToString()))
                                 </div>
@@ -74,15 +73,15 @@
                                     @{ MvcHtmlString labelS = Html.ActionLink("<span class='glyphicon glyphicon-new-window'></span>", "Create", "TechnologyContent", null, new { @class = "btn btn-info btn-sm" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(labelS.ToString()))
                                     @*</div>
-                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    <div class="col-lg-4 col-sm-2 col-xs-2">*@
                                     @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
                                     @*</div>
-                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    <div class="col-lg-4 col-sm-2 col-xs-2">*@
                                     @{ MvcHtmlString returnlinkS = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>", "Index", "Technology", null, new { @class = "btn btn-info btn-sm" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(returnlinkS.ToString()))
                                     @*</div>
-                                        <div class="col-lg-4 col-sm-2 col-xs-2">*@
+                                    <div class="col-lg-4 col-sm-2 col-xs-2">*@
                                     @{ MvcHtmlString deletelinkS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", "TechnologyContent", new { id = item.TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
                                     @Html.Raw(HttpUtility.HtmlDecode(deletelinkS.ToString()))
                                 </div>
@@ -108,7 +107,6 @@
                     </div>
                     <div class="col-lg-9 col-sm-4 col-xs-12">
                         @Html.Raw(item.Description)
-
                         @if (item.Example != null)
                         {
                             <br />
@@ -119,7 +117,6 @@
                             </b>
                         }
                         @Html.Raw(item.Example)
-
 
                         @if (item.Link != null)
                         {

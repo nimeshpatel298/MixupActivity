@@ -43,19 +43,20 @@ namespace MixupActivity.Controllers
                 {
                     return HttpNotFound();
                 }
-                var orderedItems = technology.TechnologyContents.Where(x => x.IsActive).AsEnumerable()
-                                    .Select((entry, index) => new
-                                    {
-                                        Guid = entry.TechnologyContentGuid,
-                                        Rank = index + 1
-                                    });
+                //var orderedItems = technology.TechnologyContents.Where(x => x.IsActive).AsEnumerable()
+                //                    .Select((entry, index) => new
+                //                    {
+                //                        Guid = entry.TechnologyContentGuid,
+                //                        Rank = index + 1
+                //                    });
 
-                var currentitem = orderedItems.FirstOrDefault(x => x.Guid == id);
-                ViewBag.PreviousGuid = currentitem == null || orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank - 1).Guid;
-                ViewBag.NextGuid = currentitem == null || orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1) == null ? new Guid() : orderedItems.FirstOrDefault(x => x.Rank == currentitem.Rank + 1).Guid;
+                var currentitem = technology.TechnologyContents.FirstOrDefault(x => x.TechnologyContentGuid == id);
+                ViewBag.PreviousGuid = currentitem == null || technology.TechnologyContents.FirstOrDefault(x => x.SeqNo == currentitem.SeqNo - 1) == null ? new Guid() : technology.TechnologyContents.FirstOrDefault(x => x.SeqNo == currentitem.SeqNo - 1).TechnologyContentGuid;
+                ViewBag.NextGuid = currentitem == null || technology.TechnologyContents.FirstOrDefault(x => x.SeqNo == currentitem.SeqNo + 1) == null ? new Guid() : technology.TechnologyContents.FirstOrDefault(x => x.SeqNo == currentitem.SeqNo + 1).TechnologyContentGuid;
 
-                ViewBag.TechnologyContent = technology.TechnologyContents.Where(x => x.IsActive).ToList();
-                technology.TechnologyContents = technology.TechnologyContents.Where(x => x.TechnologyContentGuid == id && x.IsActive).ToList();
+                ViewBag.TechnologyContent = technology.TechnologyContents.Where(x => x.IsActive).OrderBy(x => x.SeqNo).ToList();
+                technology.TechnologyContents = technology.TechnologyContents.OrderBy(x => x.SeqNo).Where(x => x.TechnologyContentGuid == id && x.IsActive).ToList();
+                //technology.TechnologyContents = technology.TechnologyContents.Skip(start).Take(size).ToList();
                 foreach (var technologyTechnologyContent in technology.TechnologyContents)
                 {
                     technologyTechnologyContent.Description = HttpContext.Server.HtmlDecode(technologyTechnologyContent.Description);
@@ -68,6 +69,35 @@ namespace MixupActivity.Controllers
                 log.Error("TechnologyController  Details - Get Action : " + ex.Message);
                 return RedirectToAction("Index", "Error", new { exception = ex });
             }
+        }
+
+        // GET: /Technology/Sequence/5
+        public ActionResult Sequence(Guid? id)
+        {
+            Technology technology = db.Technologies.AsNoTracking().Include(x => x.TechnologyContents).FirstOrDefault(x => x.TechnologyGuid == id);
+            return View(technology);
+        }
+
+        public int SaveSequence(string ids)
+        {
+            try
+            {
+                var index = 0;
+                ids.Split(new char[] { ',' }).ToList().ForEach(
+                    x =>
+                    {
+                        this.db.TechnologyContent.FirstOrDefault(y => y.TechnologyContentGuid == new Guid(x))
+                            .SeqNo = ++index;
+                    });
+                this.db.SaveChanges();
+                return 1;
+            }
+            catch (Exception ex)
+            {
+                log.Error("TechnologyController  SaveSequence - POST Action : " + ex.Message);
+                return 0;
+            }
+
         }
 
         // GET: /Technology/Details/5

@@ -44,6 +44,7 @@ namespace MixupActivity.Controllers
                     technologyContent.Example = HttpContext.Server.HtmlEncode(technologyContent.Example);
                     technologyContent.IsActive = true;
                     technologyContent.TechnologyContentGuid = Guid.NewGuid();
+                    technologyContent.SeqNo = db.TechnologyContent.Count(x => x.TechnologyGuid == technologyContent.TechnologyGuid) + 1;
                     db.TechnologyContent.Add(technologyContent);
                     db.SaveChanges();
                     return RedirectToAction("Details", "Technology", new { id = technologyContent.TechnologyContentGuid });
@@ -152,7 +153,7 @@ namespace MixupActivity.Controllers
                 technologyContent.IsActive = false;
                 // db.TechnologyContent.Remove(technologyContent);
                 db.SaveChanges();
-                var guid = db.TechnologyContent.FirstOrDefault(x => x.TechnologyGuid == technologyContent.TechnologyGuid &&  x.IsActive) == null ? new Guid() 
+                var guid = db.TechnologyContent.FirstOrDefault(x => x.TechnologyGuid == technologyContent.TechnologyGuid && x.IsActive) == null ? new Guid()
                     : db.TechnologyContent.FirstOrDefault(x => x.TechnologyGuid == technologyContent.TechnologyGuid && x.IsActive).TechnologyContentGuid;
                 return RedirectToAction("Details", "Technology", new { id = guid });
             }

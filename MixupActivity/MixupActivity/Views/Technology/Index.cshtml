@@ -1,9 +1,7 @@
 ﻿@model IEnumerable<MixupActivity.Models.Technology>
-
 @{
     ViewBag.Title = "Index";
 }
-
 <h2></h2>
 <table id="dtBasicExample" class="table table-striped table-bordered">
     <tr>
@@ -18,7 +16,6 @@
             @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
         </th>
     </tr>
-
     @foreach (var item in Model)
     {
         <tr>
@@ -31,15 +28,14 @@
             <td>
                 @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
-
-                @{ MvcHtmlString details = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Details", "Details", new { id = item.TechnologyContents.FirstOrDefault(x => x.IsActive) == null ? new Guid() : item.TechnologyContents.FirstOrDefault(x => x.IsActive).TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @{ MvcHtmlString details = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Details", "Details", new { id = item.TechnologyContents.FirstOrDefault(x => x.IsActive) == null ? new Guid() : item.TechnologyContents.OrderBy(x => x.SeqNo).FirstOrDefault(x => x.IsActive).TechnologyContentGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(details.ToString()))
-
                 @{ MvcHtmlString delete = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete", "Delete", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(delete.ToString()))
+
+                @{ MvcHtmlString sequence = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Sequence", "Sequence", new { id = item.TechnologyGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @Html.Raw(HttpUtility.HtmlDecode(sequence.ToString()))
             </td>
         </tr>
     }
-
 </table>
-

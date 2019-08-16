@@ -19,6 +19,8 @@ namespace MixupActivity.Models
         public string Example { get; set; }
         public string Link { get; set; }
 
+        public int SeqNo { get; set; }
+
         public bool IsActive { get; set; }
 
         public virtual Guid TechnologyGuid { get; set; }

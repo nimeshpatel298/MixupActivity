@@ -191,6 +191,10 @@
     <Compile Include="Migrations\201906171643510_Mixup-v1.Designer.cs">
       <DependentUpon>201906171643510_Mixup-v1.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201908161737498_Mixup-v2.cs" />
+    <Compile Include="Migrations\201908161737498_Mixup-v2.Designer.cs">
+      <DependentUpon>201908161737498_Mixup-v2.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Technology.cs" />
@@ -259,6 +263,7 @@
     <Content Include="Views\Technology\Delete.cshtml" />
     <Content Include="Views\TechnologyContent\Delete.cshtml" />
     <Content Include="Views\Error\Index.cshtml" />
+    <Content Include="Views\Technology\Sequence.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -282,6 +287,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201906171643510_Mixup-v1.resx">
       <DependentUpon>201906171643510_Mixup-v1.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201908161737498_Mixup-v2.resx">
+      <DependentUpon>201908161737498_Mixup-v2.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
