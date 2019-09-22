@@ -76,6 +76,22 @@
                     @Html.EditorFor(m => m.Expense, new { @class = "form-control" })
                 </div>
             </div>
+            <div class="row">
+
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.IsApproved, "Is Approved", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.IsApproved, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.IsNotApproved, "Is Not Approved", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.IsNotApproved, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.Reject, "Rejected", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.Reject, new { @class = "form-control" })
+                </div>
+            </div>
+
         </div>
         <div class="panel-footer">
             <div class="row">
@@ -107,6 +123,10 @@
         <th>
             @Html.DisplayName("Transaction For")
         </th>
+
+        <th>
+            @Html.DisplayName("Approved?")
+        </th>
         <th class="d-none d-sm-block">
 
         </th>
@@ -131,6 +151,21 @@
             </td>
             <td>
                 @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
+            </td>
+            <td>
+                @if (item.IsApproved == true)
+                {
+                    @Html.DisplayName("Approved")
+                    @*<h5>Approved</h5>*@
+                }
+                else if (item.IsApproved == false)
+                {
+                    @Html.DisplayName("Rejected")
+                }
+                else
+                {
+                    @Html.DisplayName("No Action")
+                }
             </td>
             <td class="d-none d-sm-block">
                 @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }

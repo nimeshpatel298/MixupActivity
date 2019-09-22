@@ -32,7 +32,7 @@ namespace MixupActivity.Controllers
                     if (user != null)
                     {
 
-                        var person = JsonConvert.SerializeObject(new { PersonGuid = user.PersonGuid, LoginId = user.LoginId, PersonName = user.PersonName, Email = user.Email });
+                        var person = JsonConvert.SerializeObject(new { PersonGuid = user.PersonGuid, LoginId = user.LoginId, PersonName = user.PersonName, Email = user.Email, IsAdmin = user.IsAdmin });
                         var ticket = new FormsAuthenticationTicket(1, user.PersonName, DateTime.Now, DateTime.Now.AddMinutes(30), true, person, FormsAuthentication.FormsCookiePath);
                         var hash = FormsAuthentication.Encrypt(ticket);
                         var ck = new HttpCookie("AuthCookie", hash);
@@ -109,5 +109,7 @@ namespace MixupActivity.Controllers
             // If we got this far, something failed, redisplay form
             return View(model);
         }
+
+        
     }
 }

@@ -59,6 +59,8 @@ namespace MixupActivity.Controllers
             if (lstAllowTransactionFor.Any())
                 transactionFilter.Transactions = transactionFilter.Transactions.Where(
                     x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor));
+
+            //if(transactionFilter.)
         }
 
         // GET: Transactions/Details/5
@@ -81,8 +83,8 @@ namespace MixupActivity.Controllers
         {
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new {item = "Debit", value="2"}}, "value", "item");
-            return View(new Transaction() { TransactionDate = DateTime.Now.Date });
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            return View(new Transaction() { TransactionDate = DateTime.Now.Date, IsApproved = false });
         }
 
         // POST: Transactions/Create
@@ -289,6 +291,33 @@ namespace MixupActivity.Controllers
         private IQueryable<Transaction> GetAllTransactions()
         {
             return db.Transactions.Include(t => t.Person).Include(x => x.TransactionFor);
+        }
+
+        [HttpGet]
+        public ActionResult Approve()
+        {
+            return View(db.Transactions.Include(t => t.Person).Include(x => x.TransactionFor).Where(x => x.IsApproved == null));
+        }
+
+        [HttpPost, ActionName("Approve")]
+        public ActionResult ApproveConfirmed(Transaction trans)
+        {
+            //
+            Transaction transaction = db.Transactions.Find(new Guid(this.Request.Form["item.TranscationGuid"]));
+            db.Entry(transaction).State = EntityState.Modified;
+            transaction.IsApproved = true;
+            db.SaveChanges();
+            return RedirectToAction("Approve");
+        }
+
+        [HttpPost, ActionName("Reject")]
+        public ActionResult RejectConfirmed(Transaction trans)
+        {
+            Transaction transaction = db.Transactions.Find(new Guid(this.Request.Form["item.TranscationGuid"]));
+            db.Entry(transaction).State = EntityState.Modified;
+            transaction.IsApproved = false;
+            db.SaveChanges();
+            return RedirectToAction("Approve");
         }
     }
 }

@@ -24,6 +24,9 @@ namespace MixupActivity.Models
         public bool WithDrawMoneyThirdParty { get; set; }
         public bool Sip { get; set; }
         public bool Expense { get; set; }
+        public bool IsApproved { get; set; }
+        public bool IsNotApproved { get; set; }
+        public bool Reject { get; set; }
 
     }
 }

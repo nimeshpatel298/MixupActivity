@@ -42,6 +42,7 @@ namespace MixupActivity
                     principal.LoginId = serializeModel.LoginId;
                     principal.PersonName = serializeModel.PersonName;
                     principal.PersonGuid = serializeModel.PersonGuid;
+                    principal.IsAdmin = serializeModel.IsAdmin;
                     HttpContext.Current.User = principal;
                 }
             }

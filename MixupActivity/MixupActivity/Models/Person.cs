@@ -29,6 +29,9 @@ namespace MixupActivity.Models
         [DataType(DataType.PhoneNumber)]
         public string Mobile { get; set; }
 
+        [Display(Name = "Is Admin")]
+        public bool IsAdmin { get; set; }
+
         public virtual ICollection<Transaction> Transacctions { get; set; }
 
     }

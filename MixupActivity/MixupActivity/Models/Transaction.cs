@@ -30,6 +30,9 @@ namespace MixupActivity.Models
         [DataType(DataType.Date)]
         public DateTime TransactionDate { get; set; }
 
+        [Display(Name = "Approved?")]
+        public bool? IsApproved { get; set; }
+
 
         [Display(Name = "Transaction For")]
         public virtual Guid PersonGuid { get; set; }

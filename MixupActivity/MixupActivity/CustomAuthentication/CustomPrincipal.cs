@@ -12,6 +12,7 @@ namespace MixupActivity.CustomAuthentication
         public Guid PersonGuid { get; set; }
         public string PersonName { get; set; }
         public string Email { get; set; }
+        public bool IsAdmin { get; set; }
 
         public IIdentity Identity
         {

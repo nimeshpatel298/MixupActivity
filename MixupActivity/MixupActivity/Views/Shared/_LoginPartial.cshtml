@@ -6,6 +6,10 @@
         @Html.AntiForgeryToken()
 
         <ul class="nav navbar-nav navbar-right">
+            @if (((CustomPrincipal)User).IsAdmin)
+            {
+                <li>@Html.ActionLink("Approve", "Approve", "Transactions", routeValues: null, htmlAttributes: new { id = "approve" })</li>
+            }
             <li>
                 @*@Html.Label("Hello " + ((CustomPrincipal)User).PersonName + "!", new { @class = "col-md-2 control-label" })*@
                 @Html.ActionLink("Hello " + ((CustomPrincipal)User).PersonName + "!", "Index", "Transactions", routeValues: null, htmlAttributes: null)

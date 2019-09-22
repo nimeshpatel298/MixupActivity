@@ -8,6 +8,7 @@
 {
     <div class="panel panel-primary">
         @Html.AntiForgeryToken()
+        @Html.HiddenFor(model => model.IsApproved)
         <div class="panel-heading">
             <div class="row">
                 <div class="col-lg-4 col-sm-4 col-xs-6">
