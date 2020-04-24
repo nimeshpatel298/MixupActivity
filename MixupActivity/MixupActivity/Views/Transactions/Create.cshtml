@@ -72,6 +72,7 @@
                     @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
                         @Html.TextBoxFor(model => model.TransactionDate, "{0:dd-MM-yyyy}", new { @class = "form-control datepicker" })
+                        @*@Html.EditorFor(model => model.TransactionDate, new { htmlAttributes = new { @class = "form-control", placeholder = "Employee Date Of Birth", @readonly = "true" } })*@
                         @Html.ValidationMessageFor(model => model.TransactionDate, "", new { @class = "text-danger" })
                     </div>
                 </div>
@@ -92,48 +93,35 @@
 
 </div>
 @section Scripts {
-    @*@Scripts.Render("~/bundles/jquery")*@
+
+
     @Scripts.Render("~/bundles/jqueryui")
-    @Scripts.Render("~/bundles/jqueryval")
-    @*@Scripts.Render("~/bundles/jquery")
-        @Scripts.Render("~/bundles/bootstrap")*@
+    @Styles.Render("~/Content/cssjqryUi")
+
+   
     <script type="text/javascript">
+        $(document).ready(function () {
+            $('input[type=datetime]').datepicker({
+                dateFormat: "dd/M/yy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-60:+0"
+            });
 
-        $(function() {
-        //     $('.datepicker').datepicker({
-        //            dateFormat: "dd-mm-yy"
-        //        });
-            @*$("#TranscationType").change(function () {
-                var val = $(this).val();
-                var subItems = "";
+        });
 
-                $.getJSON("@Url.Action("GetTransactionFor", "Transactions")",
-                    { id: val },
-                    function(data) {
-                        $.each(data,
-                            function(index, item) {
-                                subItems += "<option value='" + item.Value + "'>" + item.Text + "</option>";
-                            });
-                        $("#TranscationForGuid").html(subItems);
-                    });
+        $(function () {
+            //$('.datepicker').datepicker({
+            //    dateFormat: "dd-mm-yy"
+            //});
+            GetHint();
+            $("#PersonGuid").change(function () {
+                 GetHint();
+             });
 
-
-            });*@
-            //$(".datepicker").datepicker({
-            //            dateFormat: "dd-mm-yy"
-            //        });
-                    //$('.datepicker').datepicker
-
-                GetHint();
-                $("#PersonGuid").change(function () {
-                    GetHint();
-                });
-
-                $("#TranscationForGuid").change(function () {
-                    GetHint();
-                });
-
-
+             $("#TranscationForGuid").change(function () {
+                 GetHint();
+             });
 
             function GetHint() {
                 var val = $("#TranscationForGuid").val();

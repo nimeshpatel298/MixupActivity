@@ -11,9 +11,6 @@ namespace MixupActivity
             bundles.Add(new ScriptBundle("~/bundles/jquery").Include(
                         "~/Scripts/jquery-{version}.js"));
 
-            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
-                "~/Scripts/jquery-ui.js"));
-
             bundles.Add(new ScriptBundle("~/bundles/jqueryval").Include(
                         "~/Scripts/jquery.validate*"));
 
@@ -27,6 +24,14 @@ namespace MixupActivity
 
             bundles.Add(new StyleBundle("~/Content/css").Include("~/Content/bootstrap.css", "~/Content/site.css",
                       "~/Content/jquery-ui.css"));
+
+            //Create bundel for jQueryUI  
+            //js  
+            bundles.Add(new ScriptBundle("~/bundles/jqueryui").Include(
+                      "~/Scripts/jquery-ui-{version}.js"));
+            //css  
+            bundles.Add(new StyleBundle("~/Content/cssjqryUi").Include(
+                   "~/Content/jquery-ui.css"));
         }
     }
 }

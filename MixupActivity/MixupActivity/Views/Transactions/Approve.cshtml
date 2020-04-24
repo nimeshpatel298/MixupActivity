@@ -1,0 +1,73 @@
+﻿@model IEnumerable<MixupActivity.Models.Transaction>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Person.LoginId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TransactionFor.TranscationFor)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TranscationType)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Amount)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.TransactionDate)
+        </th>
+        <th></th>
+    </tr>
+
+    @foreach (var item in Model)
+    {
+
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.Person.LoginId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TranscationType)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Amount)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.TransactionDate)
+            </td>
+            <td>
+                @using (Html.BeginForm("Approve", "Transactions", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.HiddenFor(model => item.Person.LoginId)
+                    @Html.HiddenFor(model => item.IsApproved)
+                    @Html.HiddenFor(model => item.TransactionFor.TranscationFor)
+                    @Html.HiddenFor(model => item.TranscationType)
+                    @Html.HiddenFor(model => item.Amount)
+                    @Html.HiddenFor(model => item.TransactionDate)
+                    @Html.HiddenFor(model => item.TranscationGuid)
+                    @Html.HiddenFor(model => item.TranscationForGuid)
+                    <input type="submit" value="Approve" class="btn btn-primary" />
+                }
+                @using (Html.BeginForm("Reject", "Transactions", FormMethod.Post, new { @class = "form-horizontal", role = "form" }))
+                {
+                    @Html.HiddenFor(model => item.TranscationGuid)
+                    <input type="submit" value="Reject" class="btn btn-primary" />
+                }
+                @*@Html.ActionLink("Edit", "Edit", new { id = item.TranscationGuid }) |
+        @Html.ActionLink("Details", "Details", new { id = item.TranscationGuid }) |
+        @Html.ActionLink("Delete", "Delete", new { id = item.TranscationGuid })*@
+            </td>
+        </tr>
+
+    }
+
+</table>
+

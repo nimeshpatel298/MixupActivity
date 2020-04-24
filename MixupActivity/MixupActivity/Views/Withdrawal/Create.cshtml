@@ -1,0 +1,117 @@
+﻿@model MixupActivity.Models.Withdrawal
+@{
+    ViewBag.Title = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<h2></h2>
+@using (Html.BeginForm())
+{
+    <div class="panel panel-primary">
+        @Html.AntiForgeryToken()
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-4 col-sm-4 col-xs-6">
+                    Add Withdrawal Transaction
+                </div>
+                <div class="col-lg-offset-6 col-lg-2 col-sm-offset-6 col-sm-2 col-xs-offset-2 col-xs-4">
+                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", "Transactions", null, new { @class = "btn btn-info btn-md" }); }
+                    @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+                <div class="form-group">
+                    @Html.LabelFor(model => model.PersonGuid, "Transaction Of", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownList("PersonGuid", null, htmlAttributes: new { @class = "form-control", id = "PersonGuid" })
+                        @Html.ValidationMessageFor(model => model.Person, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TransactionDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(model => model.TransactionDate, "{0:dd-MM-yyyy}", new { @class = "form-control datepicker" })
+                        @Html.ValidationMessageFor(model => model.TransactionDate, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TranscationForGuid, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.TranscationForGuid, ViewBag.TransactionFor as SelectList, new { @class = "form-control", id = "TranscationForGuid" })
+                        @Html.ValidationMessageFor(model => model.TranscationForGuid, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                @*<div class="form-group">
+            @Html.LabelFor(model => model.TranscationType, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.DropDownListFor(model => model.TranscationType, ViewBag.TransactionType as SelectList, htmlAttributes: new { @class = "form-control", id = "TranscationType" })
+                @Html.ValidationMessageFor(model => model.TranscationType, "", new { @class = "text-danger" })
+            </div>
+        </div>*@
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", id = "Amount" } })
+                        <label class="control-label" id="amountSuggestion"></label>
+                        @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Interest, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.Interest, new { htmlAttributes = new { @class = "form-control", id = "Amount" } })
+                        <label class="control-label" id="interestSuggestion"></label>
+                        @Html.ValidationMessageFor(model => model.Interest, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-lg-offset-4 col-lg-1 col-xs-offset-4 col-xs-6">
+                        <input type="submit" value="Submit" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+<div>
+
+</div>
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+    @Scripts.Render("~/bundles/jqueryui")
+    @*@Scripts.Render("~/bundles/jquery")
+        @Scripts.Render("~/bundles/bootstrap")*@
+    <script type="text/javascript">
+        $(function() {
+            $('.datepicker').datepicker({
+                dateFormat: "dd-mm-yy"
+            });
+
+           
+            $.validator.addMethod('date',
+                function (value, element) {
+                    if (this.optional(element)) {
+                        return true;
+                    }
+                    var valid = true;
+                    try {
+                        $.datepicker.parseDate('dd-mm-yy', value);
+                    }
+                    catch (err) {
+                        valid = false;
+                    }
+                    return valid;
+                });
+        });
+
+    </script>
+}
