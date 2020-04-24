@@ -47,7 +47,7 @@
                 <div class="form-group">
                     @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", id = "Amount" } })
+                        @Html.TextBoxFor(model => model.Amount, new { @class = "form-control", id = "Amount" })
                         <label class="control-label" id="amountSuggestion"></label>
                         @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
                     </div>
@@ -55,7 +55,7 @@
                 <div class="form-group">
                     @Html.LabelFor(model => model.SelfInterest, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.SelfInterest, new { htmlAttributes = new { @class = "form-control", id = "SelfInterest" } })
+                        @Html.TextBoxFor(model => model.SelfInterest, new { @class = "form-control", id = "SelfInterest" })
                         <label class="control-label" id="SelfInterestSuggestion"></label>
                         @Html.ValidationMessageFor(model => model.SelfInterest, "", new { @class = "text-danger" })
                     </div>
@@ -63,7 +63,7 @@
                 <div class="form-group">
                     @Html.LabelFor(model => model.ExternalInterest, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
-                        @Html.EditorFor(model => model.ExternalInterest, new { htmlAttributes = new { @class = "form-control", id = "ExternalInterest" } })
+                        @Html.TextBoxFor(model => model.ExternalInterest, new { @class = "form-control", id = "ExternalInterest" })
                         <label class="control-label" id="ExternalInterestSuggestion"></label>
                         @Html.ValidationMessageFor(model => model.ExternalInterest, "", new { @class = "text-danger" })
                     </div>
@@ -101,7 +101,7 @@
    
     <script type="text/javascript">
         $(document).ready(function () {
-            $('input[type=datetime]').datepicker({
+            $('#TransactionDate').datepicker({
                 dateFormat: "dd/M/yy",
                 changeMonth: true,
                 changeYear: true,
