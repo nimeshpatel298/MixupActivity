@@ -5,6 +5,7 @@ using System.Linq;
 using System.Net;
 using System.Web.Mvc;
 using MixupActivity.Models;
+using System.Configuration;
 
 namespace MixupActivity.Controllers
 {
@@ -173,7 +174,7 @@ namespace MixupActivity.Controllers
             string externalInterestMessage = string.Empty;
             GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
 
-            selfInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Self)") - TotalInterestPayable(personGuid, "Return Money(Self)") - TotalInterestPaid(personGuid, "Interest(Self)"),0);
+            selfInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Self)") - TotalInterestPayable(personGuid, "Return Money(Self)") - TotalInterestPaid(personGuid, "Interest(Self)"), 0);
             selfInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)")) + ". Payable Interest is " + selfInterest + ".";
             if (selfInterest <= 0)
             {
@@ -181,7 +182,7 @@ namespace MixupActivity.Controllers
                 selfInterestMessage = "There is no outstanding interest. Please don't pay";
             }
 
-            externalInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Third Party)") - TotalInterestPayable(personGuid, "Return Money(Third Party)") - TotalInterestPaid(personGuid, "Interest(Third Party)"),0);
+            externalInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Third Party)") - TotalInterestPayable(personGuid, "Return Money(Third Party)") - TotalInterestPaid(personGuid, "Interest(Third Party)"), 0);
             externalInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)")) + ". Payable Interest is " + selfInterest + ".";
             if (externalInterest <= 0)
             {
@@ -205,13 +206,16 @@ namespace MixupActivity.Controllers
             switch (transactionFor.TranscationFor)
             {
                 case "Monthly EMI":
-                    amount = 3000;
-                    message = "Monthly EMI is 3000";
+                    int emi = 0;
+                    int.TryParse(ConfigurationManager.AppSettings["EMI"], out emi);
+                    var paidEmiAmount = PaidEmi(personGuid);
+                    amount = (emi - paidEmiAmount) > 0 ?  (emi - paidEmiAmount) : 0;
+                    message = "Monthly EMI is "+ amount;
                     return;
 
                 case "Return Money(Self)":
                     amount = (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)"));
-                   
+
                     message = "Total Outstanding Amount(Self) is" + amount + ".";
                     if (amount <= 0)
                     {
@@ -221,7 +225,7 @@ namespace MixupActivity.Controllers
                     return;
 
                 case "Return Money(Third Party)":
-                    
+
                     amount = TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)");
                     message = "Total Outstanding Amount(Third Party) is" + amount + ".";
                     if (amount <= 0)
@@ -263,6 +267,16 @@ namespace MixupActivity.Controllers
         {
             var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
             return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
+                .Sum(x => x.Amount);
+        }
+
+        private decimal PaidEmi(Guid personGuid)
+        {
+            DateTime now = DateTime.Now;
+            var startDate = new DateTime(now.Year, now.Month, 1);
+            var endDate = startDate.AddMonths(1).AddDays(-1);
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Monthly EMI"));
+            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid) && x.TransactionDate >= startDate && x.TransactionDate <= endDate).ToList()
                 .Sum(x => x.Amount);
         }
 
