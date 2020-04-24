@@ -1,4 +1,4 @@
-﻿@model MixupActivity.Models.Transaction
+﻿@model MixupActivity.Models.Deposit
 @{
     ViewBag.Title = "Create";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -30,13 +30,13 @@
                         @Html.ValidationMessageFor(model => model.Person, "", new { @class = "text-danger" })
                     </div>
                 </div>
-                <div class="form-group">
-                    @Html.LabelFor(model => model.TranscationType, htmlAttributes: new { @class = "control-label col-md-2" })
-                    <div class="col-md-10">
-                        @Html.DropDownListFor(model => model.TranscationType, ViewBag.TransactionType as SelectList, htmlAttributes: new { @class = "form-control", id = "TranscationType" })
-                        @Html.ValidationMessageFor(model => model.TranscationType, "", new { @class = "text-danger" })
-                    </div>
-                </div>
+                @*<div class="form-group">
+                        @Html.LabelFor(model => model.TranscationType, htmlAttributes: new { @class = "control-label col-md-2" })
+                        <div class="col-md-10">
+                            @Html.DropDownListFor(model => model.TranscationType, ViewBag.TransactionType as SelectList, htmlAttributes: new { @class = "form-control", id = "TranscationType" })
+                            @Html.ValidationMessageFor(model => model.TranscationType, "", new { @class = "text-danger" })
+                        </div>
+                    </div>*@
                 <div class="form-group">
                     @Html.LabelFor(model => model.TranscationForGuid, htmlAttributes: new { @class = "control-label col-md-2" })
                     <div class="col-md-10">
@@ -50,6 +50,22 @@
                         @Html.EditorFor(model => model.Amount, new { htmlAttributes = new { @class = "form-control", id = "Amount" } })
                         <label class="control-label" id="amountSuggestion"></label>
                         @Html.ValidationMessageFor(model => model.Amount, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.SelfInterest, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.SelfInterest, new { htmlAttributes = new { @class = "form-control", id = "SelfInterest" } })
+                        <label class="control-label" id="SelfInterestSuggestion"></label>
+                        @Html.ValidationMessageFor(model => model.SelfInterest, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(model => model.ExternalInterest, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.EditorFor(model => model.ExternalInterest, new { htmlAttributes = new { @class = "form-control", id = "ExternalInterest" } })
+                        <label class="control-label" id="ExternalInterestSuggestion"></label>
+                        @Html.ValidationMessageFor(model => model.ExternalInterest, "", new { @class = "text-danger" })
                     </div>
                 </div>
                 <div class="form-group">
@@ -76,16 +92,18 @@
 
 </div>
 @section Scripts {
-    @Scripts.Render("~/bundles/jqueryval")
+    @*@Scripts.Render("~/bundles/jquery")*@
     @Scripts.Render("~/bundles/jqueryui")
+    @Scripts.Render("~/bundles/jqueryval")
     @*@Scripts.Render("~/bundles/jquery")
         @Scripts.Render("~/bundles/bootstrap")*@
     <script type="text/javascript">
+
         $(function() {
-            $('.datepicker').datepicker({
-                dateFormat: "dd-mm-yy"
-            });
-            $("#TranscationType").change(function () {
+        //     $('.datepicker').datepicker({
+        //            dateFormat: "dd-mm-yy"
+        //        });
+            @*$("#TranscationType").change(function () {
                 var val = $(this).val();
                 var subItems = "";
 
@@ -100,24 +118,27 @@
                     });
 
 
-            });
+            });*@
+            //$(".datepicker").datepicker({
+            //            dateFormat: "dd-mm-yy"
+            //        });
+                    //$('.datepicker').datepicker
 
-            $("#PersonGuid").change(function() {
                 GetHint();
-            });
-            $("#TranscationType").change(function () {
-                GetHint();
-            });
-            $("#TranscationForGuid").change(function () {
-                GetHint();
-            });
+                $("#PersonGuid").change(function () {
+                    GetHint();
+                });
+
+                $("#TranscationForGuid").change(function () {
+                    GetHint();
+                });
+
+
 
             function GetHint() {
                 var val = $("#TranscationForGuid").val();
                 var person = $("#PersonGuid").val();
-                var transactionType = $("#TranscationType").val();
 
-                if (val !== 'undefined' && person !== 'undefined' && transactionType !== 'undefined' && transactionType !== 0) {
                     $.getJSON("@Url.Action("GetAmount", "Transactions")",
                         {
                             personGuid: person,
@@ -126,24 +147,28 @@
                         function(data) {
                             $("#Amount").val(data.amount);
                             $("#amountSuggestion").html(data.text);
+                            $("#SelfInterest").val(data.selfInterest);
+                            $("#SelfInterestSuggestion").html(data.selfInterestMessage);
+                            $("#ExternalInterest").val(data.externalInterest);
+                            $("#ExternalInterestSuggestion").html(data.externalInterestMessage);
                         });
-                }
+
 
             };
-            $.validator.addMethod('date',
-                function (value, element) {
-                    if (this.optional(element)) {
-                        return true;
-                    }
-                    var valid = true;
-                    try {
-                        $.datepicker.parseDate('dd-mm-yy', value);
-                    }
-                    catch (err) {
-                        valid = false;
-                    }
-                    return valid;
-                });
+            //$.validator.addMethod('date',
+            //    function (value, element) {
+            //        if (this.optional(element)) {
+            //            return true;
+            //        }
+            //        var valid = true;
+            //        try {
+            //            $.datepicker.parseDate('dd-mm-yy', value);
+            //        }
+            //        catch (err) {
+            //            valid = false;
+            //        }
+            //        return valid;
+            //    });
         });
 
     </script>

@@ -178,6 +178,7 @@
     <Compile Include="Controllers\TechnologyContentController.cs" />
     <Compile Include="Controllers\TechnologyController.cs" />
     <Compile Include="Controllers\TransactionsController.cs" />
+    <Compile Include="Controllers\WithdrawalController.cs" />
     <Compile Include="CustomAuthentication\CustomPrincipal.cs" />
     <Compile Include="Enum\Enums.cs" />
     <Compile Include="Global.asax.cs">
@@ -199,13 +200,19 @@
     <Compile Include="Migrations\201909221357101_Mixup-v3.Designer.cs">
       <DependentUpon>201909221357101_Mixup-v3.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202002190437186_Mixup-v4.cs" />
+    <Compile Include="Migrations\202002190437186_Mixup-v4.Designer.cs">
+      <DependentUpon>202002190437186_Mixup-v4.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\Deposit.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Technology.cs" />
     <Compile Include="Models\TechnologyContent.cs" />
     <Compile Include="Models\Transaction.cs" />
     <Compile Include="Models\TransactionFilter.cs" />
     <Compile Include="Models\TransactionFor.cs" />
+    <Compile Include="Models\Withdrawal.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -270,6 +277,9 @@
     <Content Include="Views\Error\Index.cshtml" />
     <Content Include="Views\Technology\Sequence.cshtml" />
     <Content Include="Views\Transactions\Approve.cshtml" />
+    <Content Include="Views\Withdrawal\Create.cshtml" />
+    <Content Include="Views\Withdrawal\Edit.cshtml" />
+    <Content Include="Views\Withdrawal\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -299,6 +309,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201909221357101_Mixup-v3.resx">
       <DependentUpon>201909221357101_Mixup-v3.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202002190437186_Mixup-v4.resx">
+      <DependentUpon>202002190437186_Mixup-v4.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

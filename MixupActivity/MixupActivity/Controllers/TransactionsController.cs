@@ -8,12 +8,14 @@ using MixupActivity.Models;
 
 namespace MixupActivity.Controllers
 {
+    using log4net;
     using MixupActivity.CustomAuthentication;
 
     [Authorize()]
     public class TransactionsController : Controller
     {
         private Context.AppContext db = new Context.AppContext();
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public ActionResult Index()
         {
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
@@ -82,9 +84,9 @@ namespace MixupActivity.Controllers
         public ActionResult Create()
         {
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
-            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
-            return View(new Transaction() { TransactionDate = DateTime.Now.Date, IsApproved = false });
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == 1), "TranscationForGuid", "TranscationFor");
+            //ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            return View(new Deposit() { TransactionDate = DateTime.Now.Date, IsApproved = false });
         }
 
         // POST: Transactions/Create
@@ -92,20 +94,66 @@ namespace MixupActivity.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid,TranscationForGuid")] Transaction transaction)
+        public ActionResult Create(Deposit deposit)
         {
+            log.Info(deposit.TranscationForGuid);
+            log.Info(deposit.TransactionFor);
             if (ModelState.IsValid)
             {
-                transaction.TranscationGuid = Guid.NewGuid();
-                db.Transactions.Add(transaction);
+                List<Transaction> transactions = new List<Transaction>();
+
+                Transaction transaction = new Transaction()
+                {
+                    TranscationGuid = Guid.NewGuid(),
+                    Amount = deposit.Amount,
+                    TranscationForGuid = deposit.TranscationForGuid,
+                    TransactionDate = deposit.TransactionDate,
+                    TranscationType = Enum.Enums.TransactionType.Credit,
+                    PersonGuid = deposit.PersonGuid
+                };
+
+                transactions.Add(transaction);
+
+                if (deposit.SelfInterest > 0)
+                {
+                    Transaction selfInterestTransaction = new Transaction()
+                    {
+                        TranscationGuid = Guid.NewGuid(),
+                        Amount = deposit.SelfInterest,
+                        TransactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor == "Interest(Self)"),
+                        TransactionDate = deposit.TransactionDate,
+                        TranscationType = Enum.Enums.TransactionType.Credit,
+                        PersonGuid = deposit.PersonGuid
+                    };
+
+                    transactions.Add(selfInterestTransaction);
+                }
+
+                if (deposit.SelfInterest > 0)
+                {
+                    Transaction externalInterestTransaction = new Transaction()
+                    {
+                        TranscationGuid = Guid.NewGuid(),
+                        Amount = deposit.ExternalInterest,
+                        TransactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor == "Interest(Third Party)"),
+                        TransactionDate = deposit.TransactionDate,
+                        TranscationType = Enum.Enums.TransactionType.Credit,
+                        PersonGuid = deposit.PersonGuid
+                    };
+
+                    transactions.Add(externalInterestTransaction);
+                }
+
+
+                db.Transactions.AddRange(transactions);
                 db.SaveChanges();
                 return RedirectToAction("Index");
             }
 
-            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
-            ViewBag.TransactionFor = new SelectList(db.TransactionFor, "TranscationForGuid", "TranscationFor");
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
-            return View(transaction);
+            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", deposit.PersonGuid);
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == 1), "TranscationForGuid", "TranscationFor");
+            //ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            return View(deposit);
         }
 
 
@@ -119,9 +167,28 @@ namespace MixupActivity.Controllers
         {
             decimal amount = 0;
             string message = string.Empty;
+            decimal selfInterest = 0;
+            string selfInterestMessage = string.Empty;
+            decimal externalInterest = 0;
+            string externalInterestMessage = string.Empty;
             GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
 
-            return Json(new { amount = amount, text = message }, JsonRequestBehavior.AllowGet);
+            selfInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Self)") - TotalInterestPayable(personGuid, "Return Money(Self)") - TotalInterestPaid(personGuid, "Interest(Self)"),0);
+            selfInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)")) + ". Payable Interest is " + selfInterest + ".";
+            if (selfInterest <= 0)
+            {
+                selfInterest = 0;
+                selfInterestMessage = "There is no outstanding interest. Please don't pay";
+            }
+
+            externalInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Third Party)") - TotalInterestPayable(personGuid, "Return Money(Third Party)") - TotalInterestPaid(personGuid, "Interest(Third Party)"),0);
+            externalInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)")) + ". Payable Interest is " + selfInterest + ".";
+            if (externalInterest <= 0)
+            {
+                externalInterest = 0;
+                externalInterestMessage = "There is no outstanding interest. Please don't pay";
+            }
+            return Json(new { amount = amount, text = message, selfInterest = selfInterest, selfInterestMessage = selfInterestMessage, externalInterest = externalInterest, externalInterestMessage = externalInterestMessage }, JsonRequestBehavior.AllowGet);
             //return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
         }
 
@@ -135,25 +202,16 @@ namespace MixupActivity.Controllers
             if (transactionFor == null)
                 return;
 
-            decimal withdrawAmount = 0;
-            decimal returnAmount = 0;
-            decimal selfInterestRate = 0.1m;
-            decimal thirdPartyInterestRate = 0.15m;
-
-
-
             switch (transactionFor.TranscationFor)
             {
                 case "Monthly EMI":
                     amount = 3000;
                     message = "Monthly EMI is 3000";
                     return;
+
                 case "Return Money(Self)":
-                    var withdrawMoneySelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Self)"));
-                    var returnMoneySelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Self)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(withdrawMoneySelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    amount = withdrawAmount - returnAmount;
+                    amount = (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)"));
+                   
                     message = "Total Outstanding Amount(Self) is" + amount + ".";
                     if (amount <= 0)
                     {
@@ -161,12 +219,10 @@ namespace MixupActivity.Controllers
                         message = "There is no outstanding money. Please don't pay";
                     }
                     return;
+
                 case "Return Money(Third Party)":
-                    var transactionForOutsideThirdParty = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Third Party)"));
-                    var transactionForOutsideThirdPartyReturned = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Third Party)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdParty.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturned.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    amount = withdrawAmount - returnAmount;
+                    
+                    amount = TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)");
                     message = "Total Outstanding Amount(Third Party) is" + amount + ".";
                     if (amount <= 0)
                     {
@@ -174,46 +230,40 @@ namespace MixupActivity.Controllers
                         message = "There is no outstanding money. Please don't pay";
                     }
                     return;
-                case "Interest(Self)":
-                    var transactionForOutsideSelfInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Self)"));
-                    var returnMoneySelfInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Self)"));
-                    var interstSelf = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Interest(Third Party)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideSelfInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(returnMoneySelfInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    var interestPaidSelf = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(interstSelf.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    amount = ((withdrawAmount - returnAmount) * selfInterestRate) / 12;
-                    amount = amount - interestPaidSelf;
-                    message = "Total Outstanding Amount is " + (withdrawAmount - returnAmount) + ". Payable Interest is " + amount + ".";
-                    if (amount <= 0)
-                    {
-                        amount = 0;
-                        message = "There is no outstanding interest. Please don't pay";
-                    }
-                    return;
-                case "Interest(Third Party)":
-                    var transactionForOutsideThirdPartyInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("WithDraw Money(Third Party)"));
-                    var transactionForOutsideThirdPartyReturnedInt = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Return Money(Third Party)"));
-                    var interstThirdParty = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Interest(Third Party)"));
-                    withdrawAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    returnAmount = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionForOutsideThirdPartyReturnedInt.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    var interestPaid = this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(interstThirdParty.TranscationForGuid)).ToList().Sum(x => x.Amount);
-                    amount = ((withdrawAmount - returnAmount) * thirdPartyInterestRate) / 12;
-                    amount = amount - interestPaid;
-                    message = "Total Outstanding Amount(Third Party) is " + (withdrawAmount - returnAmount) + ".Payable Interest is " + amount + ".";
-                    if (amount <= 0)
-                    {
-                        amount = 0;
-                        message = "There is no outstanding Interest. Please don't pay";
-                    }
-                    return;
+
                 default:
                     amount = 0;
                     message = string.Empty;
                     return;
             }
+        }
 
+        private decimal TotalInterestPayable(Guid personGuid, string interestFor)
+        {
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
+            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
+                .Select(x => new
+                {
+                    Interest = (x.Amount * x.Interest) / 100,
+                    Days = (DateTime.Now - x.TransactionDate).TotalDays
+                })
+                .Select(x => ((x.Interest * (decimal)x.Days) / 365))
+                .Sum(x => x);
+        }
 
+        private decimal TotalInterestPaid(Guid personGuid, string interestFor)
+        {
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
+            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
+                .Select(x => x.Amount)
+                .Sum(x => x);
+        }
 
+        private decimal TotalAmount(Guid personGuid, string interestFor)
+        {
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
+            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
+                .Sum(x => x.Amount);
         }
 
         // GET: Transactions/Edit/5
@@ -228,7 +278,6 @@ namespace MixupActivity.Controllers
             {
                 return HttpNotFound();
             }
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);
@@ -239,15 +288,15 @@ namespace MixupActivity.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Edit([Bind(Include = "TranscationGuid,TranscationType,Amount,TransactionDate,PersonGuid,TranscationForGuid")] Transaction transaction)
+        public ActionResult Edit(Transaction transaction)
         {
             if (ModelState.IsValid)
             {
                 db.Entry(transaction).State = EntityState.Modified;
                 db.SaveChanges();
-                return RedirectToAction("Index");
+                return RedirectToAction("Index", "Transactions");
             }
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+
             ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", transaction.PersonGuid);
             ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == (int)transaction.TranscationType), "TranscationForGuid", "TranscationFor");
             return View(transaction);
