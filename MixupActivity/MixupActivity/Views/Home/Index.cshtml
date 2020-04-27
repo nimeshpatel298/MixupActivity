@@ -1,4 +1,6 @@
-﻿@{
+﻿
+@model List<MixupActivity.Models.Deposit>
+@{
     ViewBag.Title = "Home Page";
 }
 
@@ -9,21 +11,21 @@
     </div>*@
 
 <div class="row">
-    <div class="col-md-3">
+    @*<div class="col-md-3">
         <h2>Ashish</h2>
         @*<div class="card mb-3 widget-chart widget-chart2 text-left card-btm-border card-shadow-success border-success">
-            <div class="widget-chat-wrapper-outer">
-                <div class="widget-chart-content pt-3 pl-3 pb-1">
-                    <div class="widget-chart-flex">
-                        <div class="widget-numbers">
-                            <div class="widget-chart-flex">
-                                <div class="fsize-4"><small class="opacity-5">$</small><span>874</span></div>
+                <div class="widget-chat-wrapper-outer">
+                    <div class="widget-chart-content pt-3 pl-3 pb-1">
+                        <div class="widget-chart-flex">
+                            <div class="widget-numbers">
+                                <div class="widget-chart-flex">
+                                    <div class="fsize-4"><small class="opacity-5">$</small><span>874</span></div>
+                                </div>
                             </div>
-                        </div>
-                    </div><h6 class="widget-subheading mb-0 opacity-5">sales last month</h6>
+                        </div><h6 class="widget-subheading mb-0 opacity-5">sales last month</h6>
+                    </div>
                 </div>
             </div>
-        </div>*@
         <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Follow Me &raquo;</a></p>
     </div>
     <div class="col-md-3">
@@ -40,25 +42,56 @@
         <h2>Hitendra</h2>
         <p>Details Comming Up....</p>
         <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Follow Me &raquo;</a></p>
+    </div>*@
+
+    <div class="card-columns">
+        @foreach (var deposit in Model)
+        {
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h4 class="card-title">
+                        <b>
+                            @deposit.Person.PersonName
+                        </b>
+                    </h4>
+                    <p class="card-text">
+                        EMI : @deposit.Amount
+                    </p>
+                    <p class="card-text">
+                        Self Interest:<b>@deposit.SelfInterest </b>
+                    </p>
+                    <p class="card-text">
+                        External Interest : <b>@deposit.ExternalInterest </b>
+                    </p>
+
+                    @*@{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", "Withdrawal", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }*@
+                    @{ MvcHtmlString create = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span> Add", "AutoCreate", "Transactions", new { id = deposit.Person.PersonGuid }, new { @class = "btn btn-primary btn-sm" }); }
+                    @Html.Raw(HttpUtility.HtmlDecode(create.ToString()))
+                </div>
+            </div>
+        }
     </div>
 </div>
 
+
+@Styles.Render("~/Content/css")
+
 <script type="text/javascript">
-    $(document).ready(function () {
+    @*$(document).ready(function () {
         GetData();
     });
 
     function GetData() {
-                
+
 
                     $.getJSON("@Url.Action("GetData", "Home")",
                         {
-                           
+
                         },
                         function(data) {
-                            
+
                         });
 
 
-            };
+            };*@
 </script>

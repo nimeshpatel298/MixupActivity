@@ -11,6 +11,7 @@ namespace MixupActivity.Controllers
 {
     using log4net;
     using MixupActivity.CustomAuthentication;
+    using MixupActivity.Services;
 
     [Authorize()]
     public class TransactionsController : Controller
@@ -88,6 +89,35 @@ namespace MixupActivity.Controllers
             ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == 1), "TranscationForGuid", "TranscationFor");
             //ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
             return View(new Deposit() { TransactionDate = DateTime.Now.Date, IsApproved = false });
+        }
+
+       
+        public ActionResult AutoCreate(Guid id)
+        {
+            var person = db.Persons.FirstOrDefault(x => x.PersonGuid == id);
+
+            var deposit = new Deposit() { TransactionDate = DateTime.Now.Date, IsApproved = false };
+            deposit.Person = person;
+
+            decimal amount = 0;
+            string message = string.Empty;
+            decimal selfInterest = 0;
+            string selfInterestMessage = string.Empty;
+            decimal externalInterest = 0;
+            string externalInterestMessage = string.Empty;
+
+            DepositService service = new DepositService();
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Monthly EMI"));
+            service.GetAmount(person.PersonGuid, transactionFor.TranscationForGuid, ref amount, ref message, ref selfInterest, ref selfInterestMessage, ref externalInterest, ref externalInterestMessage);
+            //deposit.TransactionFor = 
+            deposit.Amount = amount;
+            deposit.SelfInterest = selfInterest;
+            deposit.ExternalInterest = externalInterest;
+
+            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", person.PersonGuid);
+            ViewBag.TransactionFor = new SelectList(db.TransactionFor.Where(x => x.TransactionType == 1), "TranscationForGuid", "TranscationFor");
+            //ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            return View("Create", deposit);
         }
 
         // POST: Transactions/Create
@@ -172,113 +202,15 @@ namespace MixupActivity.Controllers
             string selfInterestMessage = string.Empty;
             decimal externalInterest = 0;
             string externalInterestMessage = string.Empty;
-            GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
 
-            selfInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Self)") - TotalInterestPayable(personGuid, "Return Money(Self)") - TotalInterestPaid(personGuid, "Interest(Self)"), 0);
-            selfInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)")) + ". Payable Interest is " + selfInterest + ".";
-            if (selfInterest <= 0)
-            {
-                selfInterest = 0;
-                selfInterestMessage = "There is no outstanding interest. Please don't pay";
-            }
+            DepositService service = new DepositService();
+            service.GetAmount(personGuid, transactionForGuid, ref amount, ref message, ref selfInterest, ref selfInterestMessage, ref externalInterest, ref externalInterestMessage);
 
-            externalInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Third Party)") - TotalInterestPayable(personGuid, "Return Money(Third Party)") - TotalInterestPaid(personGuid, "Interest(Third Party)"), 0);
-            externalInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)")) + ". Payable Interest is " + selfInterest + ".";
-            if (externalInterest <= 0)
-            {
-                externalInterest = 0;
-                externalInterestMessage = "There is no outstanding interest. Please don't pay";
-            }
             return Json(new { amount = amount, text = message, selfInterest = selfInterest, selfInterestMessage = selfInterestMessage, externalInterest = externalInterest, externalInterestMessage = externalInterestMessage }, JsonRequestBehavior.AllowGet);
             //return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
         }
 
-        private void GetEstimation(Guid personGuid, Guid transactionForGuid, ref decimal amount, ref string message)
-        {
-            if (personGuid == null || transactionForGuid == null)
-                return;
-            if (db.TransactionFor.Any(x => x.TransactionType == 2 && x.TranscationForGuid.Equals(transactionForGuid)))
-                return;
-            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationForGuid.Equals(transactionForGuid));
-            if (transactionFor == null)
-                return;
-
-            switch (transactionFor.TranscationFor)
-            {
-                case "Monthly EMI":
-                    int emi = 0;
-                    int.TryParse(ConfigurationManager.AppSettings["EMI"], out emi);
-                    var paidEmiAmount = PaidEmi(personGuid);
-                    amount = (emi - paidEmiAmount) > 0 ?  (emi - paidEmiAmount) : 0;
-                    message = "Monthly EMI is "+ amount;
-                    return;
-
-                case "Return Money(Self)":
-                    amount = (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)"));
-
-                    message = "Total Outstanding Amount(Self) is" + amount + ".";
-                    if (amount <= 0)
-                    {
-                        amount = 0;
-                        message = "There is no outstanding money. Please don't pay";
-                    }
-                    return;
-
-                case "Return Money(Third Party)":
-
-                    amount = TotalAmount(personGuid, "WithDraw Money(Third Party)") - TotalAmount(personGuid, "Return Money(Third Party)");
-                    message = "Total Outstanding Amount(Third Party) is" + amount + ".";
-                    if (amount <= 0)
-                    {
-                        amount = 0;
-                        message = "There is no outstanding money. Please don't pay";
-                    }
-                    return;
-
-                default:
-                    amount = 0;
-                    message = string.Empty;
-                    return;
-            }
-        }
-
-        private decimal TotalInterestPayable(Guid personGuid, string interestFor)
-        {
-            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
-            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
-                .Select(x => new
-                {
-                    Interest = (x.Amount * x.Interest) / 100,
-                    Days = (DateTime.Now - x.TransactionDate).TotalDays
-                })
-                .Select(x => ((x.Interest * (decimal)x.Days) / 365))
-                .Sum(x => x);
-        }
-
-        private decimal TotalInterestPaid(Guid personGuid, string interestFor)
-        {
-            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
-            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
-                .Select(x => x.Amount)
-                .Sum(x => x);
-        }
-
-        private decimal TotalAmount(Guid personGuid, string interestFor)
-        {
-            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(interestFor));
-            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
-                .Sum(x => x.Amount);
-        }
-
-        private decimal PaidEmi(Guid personGuid)
-        {
-            DateTime now = DateTime.Now;
-            var startDate = new DateTime(now.Year, now.Month, 1);
-            var endDate = startDate.AddMonths(1).AddDays(-1);
-            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Monthly EMI"));
-            return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid) && x.TransactionDate >= startDate && x.TransactionDate <= endDate).ToList()
-                .Sum(x => x.Amount);
-        }
+       
 
         // GET: Transactions/Edit/5
         public ActionResult Edit(Guid? id)
