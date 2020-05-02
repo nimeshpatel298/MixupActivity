@@ -120,6 +120,13 @@ namespace MixupActivity.Controllers
             return View("Create", deposit);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public ActionResult AutoCreate(Deposit deposit)
+        {
+            return Create(deposit);
+        }
+
         // POST: Transactions/Create
         // To protect from overposting attacks, please enable the specific properties you want to bind to, for 
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
@@ -145,7 +152,7 @@ namespace MixupActivity.Controllers
 
                 transactions.Add(transaction);
 
-                if (deposit.SelfInterest > 0)
+                if ((int)deposit.SelfInterest > 0)
                 {
                     Transaction selfInterestTransaction = new Transaction()
                     {
@@ -160,7 +167,7 @@ namespace MixupActivity.Controllers
                     transactions.Add(selfInterestTransaction);
                 }
 
-                if (deposit.SelfInterest > 0)
+                if ((int)deposit.SelfInterest > 0)
                 {
                     Transaction externalInterestTransaction = new Transaction()
                     {

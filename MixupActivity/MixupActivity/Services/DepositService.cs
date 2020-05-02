@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Configuration;
 using System.Linq;
 using System.Web;
+using MixupActivity.Models;
+using System.Data.Entity;
 
 namespace MixupActivity.Services
 {
@@ -13,7 +15,7 @@ namespace MixupActivity.Services
         {
             db = new Context.AppContext();
         }
-        public void GetAmount(Guid personGuid, Guid transactionForGuid, ref decimal amount, ref string message, ref decimal selfInterest, ref string selfInterestMessage,ref decimal externalInterest, ref string externalInterestMessage)
+        public void GetAmount(Guid personGuid, Guid transactionForGuid, ref decimal amount, ref string message, ref decimal selfInterest, ref string selfInterestMessage, ref decimal externalInterest, ref string externalInterestMessage)
         {
 
             GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
@@ -125,6 +127,148 @@ namespace MixupActivity.Services
             var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals("Monthly EMI"));
             return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid) && x.TransactionDate >= startDate && x.TransactionDate <= endDate).ToList()
                 .Sum(x => x.Amount);
+        }
+
+
+        public List<DepositReport> GetReport(string transactionForStr)
+        {
+            List<DepositReport> lstDepositReports = new List<DepositReport>();
+            var dateTimeNow = DateTime.Now;
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(transactionForStr));
+
+            DepositReport month = new DepositReport();
+            month.MonthStartDate = new DateTime(2000, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year - 1, 12, 31);
+            month.MonthDesc = "Till Dec-" + (dateTimeNow.Year - 1);
+
+            month.Users = new List<User>();
+
+            db.Persons.ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = x;
+                var items = db.Transactions.Where(y => y.TransactionDate >= month.MonthStartDate && y.TransactionDate <= month.MonthEndDate
+                && y.PersonGuid == x.PersonGuid
+                && y.TranscationForGuid == transactionFor.TranscationForGuid).ToList();
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            for (int i = 1; i <= 12; i++)
+            {
+                month = new DepositReport();
+                month.MonthStartDate = new DateTime(dateTimeNow.Year, i, 1);
+                month.MonthEndDate = month.MonthStartDate.AddMonths(1).AddDays(-1);
+                month.MonthDesc = month.MonthStartDate.ToString("MMM");
+
+                month.Users = new List<User>();
+
+                db.Persons.ToList().ForEach(x =>
+                {
+                    User user = new User();
+                    user.Person = x;
+                    var items = db.Transactions.Where(y => y.TransactionDate >= month.MonthStartDate && y.TransactionDate <= month.MonthEndDate
+                    && y.PersonGuid == x.PersonGuid
+                    && y.TranscationForGuid == transactionFor.TranscationForGuid).ToList();
+                    if (items == null || items.Count == 0)
+                        user.Amount = 0;
+                    else
+                        user.Amount = items.Select(y => y.Amount).Sum();
+                    month.Users.Add(user);
+                });
+                month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+                lstDepositReports.Add(month);
+            }
+
+            month = new DepositReport();
+            month.MonthStartDate = new DateTime(dateTimeNow.Year, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year, 12, 31);
+            month.MonthDesc = "Total Of " + (dateTimeNow.Year);
+
+            month.Users = new List<User>();
+
+            db.Persons.ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = x;
+                var items = db.Transactions.Where(y => y.TransactionDate >= month.MonthStartDate && y.TransactionDate <= month.MonthEndDate
+                && y.PersonGuid == x.PersonGuid
+                && y.TranscationForGuid == transactionFor.TranscationForGuid).ToList();
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            month = new DepositReport();
+            month.MonthStartDate = new DateTime(2000, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year, 12, 31);
+            month.MonthDesc = "Grand Total";
+
+            month.Users = new List<User>();
+
+            db.Persons.ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = x;
+                var items = db.Transactions.Where(y => y.TransactionDate >= month.MonthStartDate && y.TransactionDate <= month.MonthEndDate
+                && y.PersonGuid == x.PersonGuid
+                && y.TranscationForGuid == transactionFor.TranscationForGuid).ToList();
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            return lstDepositReports;
+        }
+
+        public List<TransactionReport> GetOutstandingReport(string transactionForStr, string returnTransacationForStr)
+        {
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(transactionForStr));
+            var returnTransactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(returnTransacationForStr));
+            return db.Transactions
+                .Include(t => t.Person)
+                .Include(x => x.TransactionFor)
+                .Where(x => x.TranscationForGuid == transactionFor.TranscationForGuid ||
+                        x.TranscationForGuid == returnTransactionFor.TranscationForGuid)
+                .OrderBy(x => x.PersonGuid)
+                .ToList()
+                .Select(x =>
+                {
+                    var newObj = new TransactionReport()
+                    {
+                        TranscationGuid = x.TranscationGuid,
+                        TranscationType = x.TranscationType,
+                        TranscationForGuid = x.TranscationForGuid,
+                        //Amount = x.Amount,
+                        TransactionDate = x.TransactionDate,
+                        PersonGuid = x.PersonGuid,
+                        Person = x.Person,
+                        TransactionFor = x.TransactionFor,
+                        Interest = x.Interest,
+                        CurrentDate = DateTime.Now,
+                        TotalDays = 0,
+                        CalculatedInterest = 0
+                    };
+                    newObj.Amount = x.TranscationForGuid == transactionFor.TranscationForGuid ? x.Amount : 0;
+                    newObj.ReturnedAmount = x.TranscationForGuid == returnTransactionFor.TranscationForGuid ? x.Amount : 0;
+                    return newObj;
+                }).ToList();
         }
     }
 }
