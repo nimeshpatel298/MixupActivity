@@ -40,5 +40,6 @@ namespace MixupActivity.Context
         public DbSet<TransactionFor> TransactionFor { get; set; }
         public DbSet<Technology> Technologies { get; set; }
         public DbSet<TechnologyContent> TechnologyContent { get; set; }
+        public DbSet<Investment> Investments { get; set; }
     }
 }

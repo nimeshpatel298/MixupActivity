@@ -237,6 +237,119 @@ namespace MixupActivity.Services
             return lstDepositReports;
         }
 
+
+        public List<DepositReport> GetInvestmentReport()
+        {
+            List<DepositReport> lstDepositReports = new List<DepositReport>();
+            var dateTimeNow = DateTime.Now;
+            //var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(transactionForStr));
+
+            DepositReport month = new DepositReport();
+            month.MonthStartDate = new DateTime(2000, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year - 1, 12, 31);
+            month.MonthDesc = "Till Dec-" + (dateTimeNow.Year - 1);
+
+            month.Users = new List<User>();
+
+            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = new Person();
+                user.Person.PersonName = x.Key;
+                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate)
+                .ToList();
+
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            for (int i = 1; i <= 12; i++)
+            {
+                month = new DepositReport();
+                month.MonthStartDate = new DateTime(dateTimeNow.Year, i, 1);
+                month.MonthEndDate = month.MonthStartDate.AddMonths(1).AddDays(-1);
+                month.MonthDesc = month.MonthStartDate.ToString("MMM");
+
+                month.Users = new List<User>();
+
+                db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+                {
+                    User user = new User();
+                    user.Person = new Person();
+                    user.Person.PersonName = x.Key;
+                    var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
+                    && y.InvestmentDate <= month.MonthEndDate).ToList();
+                    if (items == null || items.Count == 0)
+                        user.Amount = 0;
+                    else
+                        user.Amount = items.Select(y => y.Amount).Sum();
+                    month.Users.Add(user);
+                });
+                month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+                lstDepositReports.Add(month);
+            }
+
+            month = new DepositReport();
+            month.MonthStartDate = new DateTime(dateTimeNow.Year, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year, 12, 31);
+            month.MonthDesc = "Total Of " + (dateTimeNow.Year);
+
+            month.Users = new List<User>();
+
+            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = new Person();
+                user.Person.PersonName = x.Key;
+
+                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
+                && y.InvestmentDate <= month.MonthEndDate).ToList();
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            month = new DepositReport();
+            month.MonthStartDate = new DateTime(2000, 1, 1);
+            month.MonthEndDate = new DateTime(dateTimeNow.Year, 12, 31);
+            month.MonthDesc = "Grand Total";
+
+            month.Users = new List<User>();
+
+            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            {
+                User user = new User();
+                user.Person = new Person();
+                user.Person.PersonName = x.Key;
+
+                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
+                && y.InvestmentDate <= month.MonthEndDate).ToList();
+
+                if (items == null || items.Count == 0)
+                    user.Amount = 0;
+                else
+                    user.Amount = items.Select(y => y.Amount).Sum();
+                month.Users.Add(user);
+            });
+
+            month.TotalOfMonth = month.Users.Select(z => z.Amount).Sum();
+            lstDepositReports.Add(month);
+
+
+            return lstDepositReports;
+        }
+
         public List<TransactionReport> GetOutstandingReport(string transactionForStr, string returnTransacationForStr)
         {
             var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(transactionForStr));
@@ -269,6 +382,72 @@ namespace MixupActivity.Services
                     newObj.ReturnedAmount = x.TranscationForGuid == returnTransactionFor.TranscationForGuid ? x.Amount : 0;
                     return newObj;
                 }).ToList();
+        }
+
+        public List<Investment> GetInvestmentReport(string investmentType)
+        {
+            return db.Investments.Where(x => x.InvestmentType == investmentType).ToList();
+        }
+
+        public List<BalanceSheetItem> GetBalanceSheetData()
+        {
+            List<BalanceSheetItem> data = new List<BalanceSheetItem>();
+
+            BalanceSheetItem monthlyEMI = new BalanceSheetItem();
+            monthlyEMI.Amount = GetTotalOf("Monthly EMI");
+            monthlyEMI.BalancesheetItem = "Total from \"Month wise status report\"";
+            monthlyEMI.Transaction = Enum.Enums.TransactionType.Credit;
+            data.Add(monthlyEMI);
+
+            BalanceSheetItem PastInterest = new BalanceSheetItem();
+            PastInterest.Amount = GetInvestmentReport("Past Year Interest").Sum(x => x.Amount);
+            PastInterest.BalancesheetItem = "Total Interest of 2016-2019";
+            PastInterest.Transaction = Enum.Enums.TransactionType.Credit;
+            data.Add(PastInterest);
+
+            BalanceSheetItem Interest2020 = new BalanceSheetItem();
+            Interest2020.Amount = GetTotalOf("Interest(Self)");
+            Interest2020.BalancesheetItem = "Total Interest of 2020";
+            Interest2020.Transaction = Enum.Enums.TransactionType.Credit;
+            data.Add(Interest2020);
+
+            BalanceSheetItem otherCredit = new BalanceSheetItem();
+            otherCredit.Amount = GetInvestmentReport("Other").Where(x => x.TranscationType == Enum.Enums.TransactionType.Credit).Sum(x => x.Amount);
+            otherCredit.BalancesheetItem = "Other (Credit)";
+            otherCredit.Transaction = Enum.Enums.TransactionType.Credit;
+            data.Add(otherCredit);
+
+            BalanceSheetItem dueMoney = new BalanceSheetItem();
+            dueMoney.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("Return Money(Self)");
+            dueMoney.BalancesheetItem = "Due Money";
+            dueMoney.Transaction = Enum.Enums.TransactionType.Debit;
+            data.Add(dueMoney);
+
+            BalanceSheetItem investment = new BalanceSheetItem();
+            investment.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("Return Money(Self)");
+            investment.BalancesheetItem = "Investment";
+            investment.Transaction = Enum.Enums.TransactionType.Debit;
+            data.Add(investment);
+
+            BalanceSheetItem bankBalance = new BalanceSheetItem();
+            bankBalance.Amount = GetInvestmentReport("Bank Balance").Sum(x => x.Amount);
+            bankBalance.BalancesheetItem = "Bank Balance";
+            bankBalance.Transaction = Enum.Enums.TransactionType.Debit;
+            data.Add(bankBalance);
+
+            BalanceSheetItem otherDebit = new BalanceSheetItem();
+            otherDebit.Amount = GetInvestmentReport("Other").Where(x => x.TranscationType == Enum.Enums.TransactionType.Debit).Sum(x => x.Amount);
+            otherDebit.BalancesheetItem = "Other (Debit)";
+            otherDebit.Transaction = Enum.Enums.TransactionType.Debit;
+            data.Add(otherDebit);
+
+            return data;
+        }
+
+        public decimal GetTotalOf(string transactionForStr)
+        {
+            var transactionFor = db.TransactionFor.FirstOrDefault(x => x.TranscationFor.Equals(transactionForStr));
+            return db.Transactions.Where(y => y.TranscationForGuid == transactionFor.TranscationForGuid).ToList().Sum(x => x.Amount);
         }
     }
 }

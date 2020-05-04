@@ -1,51 +1,14 @@
 ﻿
-@model List<MixupActivity.Models.Deposit>
+@model MixupActivity.Models.Dashboard
 @{
     ViewBag.Title = "Home Page";
 }
 
-@*<div class="jumbotron">
-        <h1>ASP.NET</h1>
-        <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-        <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-    </div>*@
 
 <div class="row">
-    @*<div class="col-md-3">
-        <h2>Ashish</h2>
-        @*<div class="card mb-3 widget-chart widget-chart2 text-left card-btm-border card-shadow-success border-success">
-                <div class="widget-chat-wrapper-outer">
-                    <div class="widget-chart-content pt-3 pl-3 pb-1">
-                        <div class="widget-chart-flex">
-                            <div class="widget-numbers">
-                                <div class="widget-chart-flex">
-                                    <div class="fsize-4"><small class="opacity-5">$</small><span>874</span></div>
-                                </div>
-                            </div>
-                        </div><h6 class="widget-subheading mb-0 opacity-5">sales last month</h6>
-                    </div>
-                </div>
-            </div>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Follow Me &raquo;</a></p>
-    </div>
-    <div class="col-md-3">
-        <h2>Ketan</h2>
-        <p>Details Comming Up....</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Follow Me &raquo;</a></p>
-    </div>
-    <div class="col-md-3">
-        <h2>Jayesh</h2>
-        <p>Details Comming Up....</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Follow Me &raquo;</a></p>
-    </div>
-    <div class="col-md-3">
-        <h2>Hitendra</h2>
-        <p>Details Comming Up....</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Follow Me &raquo;</a></p>
-    </div>*@
-
+    <h4>Monthly Payment</h4>
     <div class="card-columns">
-        @foreach (var deposit in Model)
+        @foreach (var deposit in Model.Deposits)
         {
             <div class="card" style="width: 18rem;">
                 <div class="card-body">
@@ -73,25 +36,32 @@
     </div>
 </div>
 
+<div class="row">
+    <h4>Investment</h4>
+    <div class="card-columns">
+        @foreach (var deposit in Model.Investments)
+        {
+            <div class="card" style="width: 18rem;">
+                <div class="card-body">
+                    <h5 class="card-title">
+                      
+                            @deposit.InvestmentName
+                       
+                    </h5>
+                    <p class="card-text">
+                        Amount : <b>@deposit.Amount</b>
+                    </p>
+
+
+                    @*@{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", "Withdrawal", new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }*@
+                    @{ MvcHtmlString createInv = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span> Add", "AutoCreate", "Investment", new { investmentName = deposit.InvestmentName }, new { @class = "btn btn-primary btn-sm" }); }
+                    @Html.Raw(HttpUtility.HtmlDecode(createInv.ToString()))
+                </div>
+            </div>
+        }
+    </div>
+</div>
+
 
 @Styles.Render("~/Content/css")
 
-<script type="text/javascript">
-    @*$(document).ready(function () {
-        GetData();
-    });
-
-    function GetData() {
-
-
-                    $.getJSON("@Url.Action("GetData", "Home")",
-                        {
-
-                        },
-                        function(data) {
-
-                        });
-
-
-            };*@
-</script>

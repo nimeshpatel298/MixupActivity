@@ -1,0 +1,13 @@
+# Compiled Object files
+MixupActivity/packages/*.*
+MixupActivity/.vs/*.*
+MixupActivity/.vs/*
+MixupActivity/MixupActivity/bin/*.*
+MixupActivity/MixupActivity/bin/*
+MixupActivity/MixupActivity/obj/*.*
+MixupActivity/MixupActivity/obj/*
+MixupActivity/MixupActivity/ErrorLog/*.*
+MixupActivity/MixupActivity/App_Data/*.*
+MixupActivity/MixupActivity/App_Data/*
+MixupActivity/MixupActivity/aspnet_client/*.*
+MixupActivity/MixupActivity/aspnet_client/*

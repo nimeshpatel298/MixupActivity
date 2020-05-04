@@ -192,6 +192,7 @@
     <Compile Include="Controllers\DepositReportController.cs" />
     <Compile Include="Controllers\ErrorController.cs" />
     <Compile Include="Controllers\HomeController.cs" />
+    <Compile Include="Controllers\InvestmentController.cs" />
     <Compile Include="Controllers\TechnologyContentController.cs" />
     <Compile Include="Controllers\TechnologyController.cs" />
     <Compile Include="Controllers\TransactionsController.cs" />
@@ -221,9 +222,28 @@
     <Compile Include="Migrations\202002190437186_Mixup-v4.Designer.cs">
       <DependentUpon>202002190437186_Mixup-v4.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\202005030910022_Mixup-v5.cs" />
+    <Compile Include="Migrations\202005030910022_Mixup-v5.Designer.cs">
+      <DependentUpon>202005030910022_Mixup-v5.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005030947334_Mixup-v6.cs" />
+    <Compile Include="Migrations\202005030947334_Mixup-v6.Designer.cs">
+      <DependentUpon>202005030947334_Mixup-v6.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005031001395_Mixup-v7.cs" />
+    <Compile Include="Migrations\202005031001395_Mixup-v7.Designer.cs">
+      <DependentUpon>202005031001395_Mixup-v7.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\202005031153567_Mixup-v8.cs" />
+    <Compile Include="Migrations\202005031153567_Mixup-v8.Designer.cs">
+      <DependentUpon>202005031153567_Mixup-v8.cs</DependentUpon>
+    </Compile>
     <Compile Include="Migrations\Configuration.cs" />
+    <Compile Include="Models\BalanceSheetItem.cs" />
+    <Compile Include="Models\Dashboard.cs" />
     <Compile Include="Models\Deposit.cs" />
     <Compile Include="Models\DepositReport.cs" />
+    <Compile Include="Models\Investment.cs" />
     <Compile Include="Models\Person.cs" />
     <Compile Include="Models\Technology.cs" />
     <Compile Include="Models\TechnologyContent.cs" />
@@ -343,6 +363,10 @@
     <Content Include="Views\Withdrawal\Edit.cshtml" />
     <Content Include="Views\Withdrawal\Delete.cshtml" />
     <Content Include="Views\DepositReport\Index.cshtml" />
+    <Content Include="Views\Investment\Index.cshtml" />
+    <Content Include="Views\Investment\Create.cshtml" />
+    <Content Include="Views\Investment\Edit.cshtml" />
+    <Content Include="Views\Investment\Delete.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
@@ -375,6 +399,18 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\202002190437186_Mixup-v4.resx">
       <DependentUpon>202002190437186_Mixup-v4.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005030910022_Mixup-v5.resx">
+      <DependentUpon>202005030910022_Mixup-v5.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005030947334_Mixup-v6.resx">
+      <DependentUpon>202005030947334_Mixup-v6.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005031001395_Mixup-v7.resx">
+      <DependentUpon>202005031001395_Mixup-v7.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\202005031153567_Mixup-v8.resx">
+      <DependentUpon>202005031153567_Mixup-v8.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -124,9 +124,9 @@
             @Html.DisplayName("Transaction For")
         </th>
 
-        <th>
+        @*<th>
             @Html.DisplayName("Approved?")
-        </th>
+        </th>*@
         <th class="d-none d-sm-block">
 
         </th>
@@ -152,11 +152,11 @@
             <td>
                 @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
             </td>
-            <td>
+            @*<td>
                 @if (item.IsApproved == true)
                 {
                     @Html.DisplayName("Approved")
-                    @*<h5>Approved</h5>*@
+                    
                 }
                 else if (item.IsApproved == false)
                 {
@@ -166,7 +166,7 @@
                 {
                     @Html.DisplayName("No Action")
                 }
-            </td>
+            </td>*@
             <td class="d-none d-sm-block">
                 @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", (item.TranscationType == MixupActivity.Enum.Enums.TransactionType.Credit ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))

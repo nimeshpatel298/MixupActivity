@@ -1,0 +1,104 @@
+﻿@model MixupActivity.Models.Investment
+<h2></h2>
+@using (Html.BeginForm())
+{
+    <div class="panel panel-primary">
+        @Html.AntiForgeryToken()
+
+        <div class="panel-heading">
+            <div class="row">
+                <div class="col-lg-4 col-sm-4 col-xs-6">
+                    Edit Investment
+                </div>
+                <div class="col-lg-offset-6 col-lg-2 col-sm-offset-6 col-sm-2 col-xs-offset-2 col-xs-4">
+                    @{ MvcHtmlString label = Html.ActionLink("<span class='glyphicon glyphicon-share-alt'></span>Return", "Index", null, new { @class = "btn btn-info btn-md" }); }
+                    @Html.Raw(HttpUtility.HtmlDecode(label.ToString()))
+                </div>
+            </div>
+        </div>
+        <div class="panel-body">
+            <div class="form-horizontal">
+                @*<h4>Investment</h4>
+                    <hr />*@
+                @Html.ValidationSummary(true)
+                @Html.HiddenFor(model => model.InvestmentGuid)
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.InvestmentName, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(model => model.InvestmentName, new { @class = "form-control", id = "InvestmentName" })
+                        @Html.ValidationMessageFor(model => model.InvestmentName)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.InvestmentType, "Investment Type", htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.InvestmentType, ViewBag.InvestmentTypes as SelectList, htmlAttributes: new { @class = "form-control", id = "TranscationType" })
+                        @Html.ValidationMessageFor(model => model.TranscationType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.Amount, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(model => model.Amount, new { @class = "form-control", id = "Amount" })
+                        @Html.ValidationMessageFor(model => model.Amount)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.InvestmentDate, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.TextBoxFor(model => model.InvestmentDate, "{0:dd-MM-yyyy}", new { @class = "form-control datepicker", id = "InvestmentDate" })
+                        @Html.ValidationMessageFor(model => model.InvestmentDate)
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.TranscationType, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.DropDownListFor(model => model.TranscationType, ViewBag.TransactionType as SelectList, htmlAttributes: new { @class = "form-control", id = "TranscationType" })
+                        @Html.ValidationMessageFor(model => model.TranscationType, "", new { @class = "text-danger" })
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    @Html.LabelFor(model => model.IsMonthlyRecurrent, htmlAttributes: new { @class = "control-label col-md-2" })
+                    <div class="col-md-10">
+                        @Html.CheckBoxFor(model => model.IsMonthlyRecurrent)
+                        @Html.ValidationMessageFor(model => model.IsMonthlyRecurrent)
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="panel-footer">
+            <div class="row">
+                <div class="form-group">
+                    <div class="col-md-offset-2 col-md-10">
+                        <input type="submit" value="Save" class="btn btn-primary" />
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+}
+
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryui")
+    @Styles.Render("~/Content/cssjqryUi")
+
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $('#InvestmentDate').datepicker({
+                dateFormat: "dd/MM/yyyy",
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-60:+0"
+            });
+
+        });
+    </script>
+}
