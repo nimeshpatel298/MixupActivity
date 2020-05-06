@@ -62,7 +62,7 @@ namespace MixupActivity.Controllers
 
             if (lstAllowTransactionFor.Any())
                 transactionFilter.Transactions = transactionFilter.Transactions.Where(
-                    x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor));
+                    x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor)).OrderByDescending(x => x.TransactionDate).OrderBy(x => x.Person);
 
             //if(transactionFilter.)
         }
@@ -91,7 +91,7 @@ namespace MixupActivity.Controllers
             return View(new Deposit() { TransactionDate = DateTime.Now.Date, IsApproved = false });
         }
 
-       
+
         public ActionResult AutoCreate(Guid id)
         {
             var person = db.Persons.FirstOrDefault(x => x.PersonGuid == id);
@@ -181,10 +181,17 @@ namespace MixupActivity.Controllers
 
                     transactions.Add(externalInterestTransaction);
                 }
-
-
+               
+                    
+                
                 db.Transactions.AddRange(transactions);
                 db.SaveChanges();
+
+                EmailService emailService = new EmailService();
+                //log.Error("Person:" + deposit.Person.)
+                emailService.SendMail(db.Persons.FirstOrDefault(x => x.PersonGuid == deposit.PersonGuid), transactions);
+
+
                 return RedirectToAction("Index");
             }
 
@@ -217,7 +224,7 @@ namespace MixupActivity.Controllers
             //return Json(new SelectList(db.TransactionFor.Where(x => x.TransactionType == id), "TranscationForGuid", "TranscationFor"), JsonRequestBehavior.AllowGet);
         }
 
-       
+
 
         // GET: Transactions/Edit/5
         public ActionResult Edit(Guid? id)

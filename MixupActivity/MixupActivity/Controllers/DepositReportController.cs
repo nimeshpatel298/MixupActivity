@@ -224,17 +224,17 @@ namespace MixupActivity.Controllers
             CreateTranscationReport(transactioReportData, outsideTransactioReportData, Sheet, 24, 'B');
 
             string[] columns = { "Date", "Interest" };
-            CreateInvestmentReport(investmentData, Sheet, transactioReportData.Count + 30, 'B', "Bank Interest", columns, item => item.InvestmentDate.ToString());
+            CreateInvestmentReport(investmentData, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'B', "Bank Interest", columns, item => item.InvestmentDate.Date.ToString());
             string[]  columns2 = { "Bank", "Amount" };
-            CreateInvestmentReport(bankBalance, Sheet, transactioReportData.Count + 30, 'E', "Bank Balance", columns2,  item => item.InvestmentName);
+            CreateInvestmentReport(bankBalance, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'E', "Bank Balance", columns2,  item => item.InvestmentName);
             string[] columns3 = { "Year", "Amount" };
-            CreateInvestmentReport(pastYearInterestData, Sheet, transactioReportData.Count + 30, 'H', "Past Year Interest", columns3, item => item.InvestmentName);
+            CreateInvestmentReport(pastYearInterestData, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'H', "Past Year Interest", columns3, item => item.InvestmentName);
 
             string[] columns4 = { "Reason", "Amount" };
-            CreateInvestmentReport(other.Where(x => x.TranscationType == Enum.Enums.TransactionType.Credit).ToList(), Sheet, transactioReportData.Count + 30, 'K', "Other (Credit)", columns4, item => item.InvestmentName);
+            CreateInvestmentReport(other.Where(x => x.TranscationType == Enum.Enums.TransactionType.Credit).ToList(), Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'K', "Other (Credit)", columns4, item => item.InvestmentName);
 
             string[] columns5 = { "Reason", "Amount" };
-            CreateInvestmentReport(other.Where(x => x.TranscationType == Enum.Enums.TransactionType.Debit).ToList(), Sheet, transactioReportData.Count + 30, 'N', "Other (Debit)", columns5, item => item.InvestmentName);
+            CreateInvestmentReport(other.Where(x => x.TranscationType == Enum.Enums.TransactionType.Debit).ToList(), Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'N', "Other (Debit)", columns5, item => item.InvestmentName);
 
             Sheet.Cells["A:AZ"].AutoFitColumns();
         }
@@ -265,9 +265,9 @@ namespace MixupActivity.Controllers
                 col = (char)((int)startCol);
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Person.PersonName;
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount == 0 ? "" : item.Amount.ToString();
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount;
+                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount == 0 ? "" : item.ReturnedAmount.ToString();
                 col++;
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "dd-mm-yyyy";
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.TransactionDate;
@@ -296,9 +296,9 @@ namespace MixupActivity.Controllers
                 col = (char)((int)startCol);
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Person.PersonName;
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount == 0 ? "" : item.Amount.ToString(); ;
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount;
+                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount == 0 ? "" : item.ReturnedAmount.ToString();
                 col++;
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "dd-mm-yyyy";
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.TransactionDate;
@@ -319,7 +319,7 @@ namespace MixupActivity.Controllers
             col = (char)((int)startCol);
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = "Total Amount Due";
             col++;
-            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = collection.Sum(x => x.Amount) + collection2.Sum(x => x.Amount);
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = collection.Sum(x => x.Amount) + collection2.Sum(x => x.Amount) - collection.Sum(x => x.ReturnedAmount) - collection2.Sum(x => x.ReturnedAmount);
 
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Border.Top.Style = ExcelBorderStyle.Thin;
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Border.Right.Style = ExcelBorderStyle.Thin;
@@ -337,28 +337,12 @@ namespace MixupActivity.Controllers
             });
 
             DepositService service = new DepositService();
-            var collection = service.GetInvestmentReport();
+            var collection = service.GetInvestmentReport(users.ToList());
 
 
             ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("Investment");
 
-            //var startCol = 'B';
-            //var startRow = 1;
-            //var endCol = 'H';
-            //var endRow = 1;
-            //var hearder = string.Format("{0}{1}:{2}{3}", startCol, startRow, endCol, endRow);
-            //Sheet.Cells[hearder].Value = "MIXUP ACCOUNT";
-            //Sheet.Cells[hearder].Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
-            //Color purple = ColorTranslator.FromHtml("#7030a0");
-            ////Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Fill.PatternType = ExcelFillStyle.Solid;
-            //Sheet.Cells[hearder].Style.Font.Size = 22;
-            //Sheet.Cells[hearder].Style.Font.Color.SetColor(purple);
-            //Sheet.Cells[hearder].Merge = true;
-
-            //Sheet.Cells[hearder].Style.Border.Top.Style = ExcelBorderStyle.Thin;
-            //Sheet.Cells[hearder].Style.Border.Right.Style = ExcelBorderStyle.Thin;
-            //Sheet.Cells[hearder].Style.Border.Bottom.Style = ExcelBorderStyle.Thin;
-            //Sheet.Cells[hearder].Style.Border.Left.Style = ExcelBorderStyle.Thin;
+            
 
             CreateTable(users.ToList(), collection, Sheet, 2, 'B', "Investment Details");
 

@@ -238,7 +238,7 @@ namespace MixupActivity.Services
         }
 
 
-        public List<DepositReport> GetInvestmentReport()
+        public List<DepositReport> GetInvestmentReport(List<Person> users)
         {
             List<DepositReport> lstDepositReports = new List<DepositReport>();
             var dateTimeNow = DateTime.Now;
@@ -251,14 +251,13 @@ namespace MixupActivity.Services
 
             month.Users = new List<User>();
 
-            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            users.ForEach(x =>
             {
                 User user = new User();
                 user.Person = new Person();
-                user.Person.PersonName = x.Key;
-                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate)
-                .ToList();
-
+                user.Person.PersonName = x.PersonName;
+                var items = db.Investments.Where(y => y.InvestmentName == x.PersonName && y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate).ToList();
+                
                 if (items == null || items.Count == 0)
                     user.Amount = 0;
                 else
@@ -278,13 +277,12 @@ namespace MixupActivity.Services
 
                 month.Users = new List<User>();
 
-                db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+                users.ForEach(x =>
                 {
                     User user = new User();
                     user.Person = new Person();
-                    user.Person.PersonName = x.Key;
-                    var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
-                    && y.InvestmentDate <= month.MonthEndDate).ToList();
+                    user.Person.PersonName = x.PersonName;
+                    var items = db.Investments.Where(y => y.InvestmentName == x.PersonName && y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate).ToList();
                     if (items == null || items.Count == 0)
                         user.Amount = 0;
                     else
@@ -302,14 +300,13 @@ namespace MixupActivity.Services
 
             month.Users = new List<User>();
 
-            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            users.ForEach(x =>
             {
                 User user = new User();
                 user.Person = new Person();
-                user.Person.PersonName = x.Key;
+                user.Person.PersonName = x.PersonName;
 
-                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
-                && y.InvestmentDate <= month.MonthEndDate).ToList();
+                var items = db.Investments.Where(y => y.InvestmentName == x.PersonName && y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate).ToList();
                 if (items == null || items.Count == 0)
                     user.Amount = 0;
                 else
@@ -327,14 +324,13 @@ namespace MixupActivity.Services
 
             month.Users = new List<User>();
 
-            db.Investments.Where(x => x.IsMonthlyRecurrent && x.InvestmentType == "Investment").GroupBy(x => x.InvestmentName).ToList().ForEach(x =>
+            users.ToList().ForEach(x =>
             {
                 User user = new User();
                 user.Person = new Person();
-                user.Person.PersonName = x.Key;
+                user.Person.PersonName = x.PersonName;
 
-                var items = x.Where(y => y.InvestmentDate >= month.MonthStartDate
-                && y.InvestmentDate <= month.MonthEndDate).ToList();
+                var items = db.Investments.Where(y => y.InvestmentName == x.PersonName && y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate).ToList();
 
                 if (items == null || items.Count == 0)
                     user.Amount = 0;
@@ -381,7 +377,7 @@ namespace MixupActivity.Services
                     newObj.Amount = x.TranscationForGuid == transactionFor.TranscationForGuid ? x.Amount : 0;
                     newObj.ReturnedAmount = x.TranscationForGuid == returnTransactionFor.TranscationForGuid ? x.Amount : 0;
                     return newObj;
-                }).ToList();
+                }).ToList().OrderBy(x => x.TransactionDate).OrderBy(x => x.Person.PersonName).ToList();
         }
 
         public List<Investment> GetInvestmentReport(string investmentType)
@@ -406,7 +402,7 @@ namespace MixupActivity.Services
             data.Add(PastInterest);
 
             BalanceSheetItem Interest2020 = new BalanceSheetItem();
-            Interest2020.Amount = GetTotalOf("Interest(Self)");
+            Interest2020.Amount = GetTotalOf("Interest(Self)") + GetTotalOf("Interest(Third Party)") + GetInvestmentReport("Bank Interest").Sum(x => x.Amount);
             Interest2020.BalancesheetItem = "Total Interest of 2020";
             Interest2020.Transaction = Enum.Enums.TransactionType.Credit;
             data.Add(Interest2020);
@@ -418,13 +414,13 @@ namespace MixupActivity.Services
             data.Add(otherCredit);
 
             BalanceSheetItem dueMoney = new BalanceSheetItem();
-            dueMoney.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("Return Money(Self)");
+            dueMoney.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("WithDraw Money(Third Party)") - GetTotalOf("Return Money(Self)") - GetTotalOf("Return Money(Third Party)") ;
             dueMoney.BalancesheetItem = "Due Money";
             dueMoney.Transaction = Enum.Enums.TransactionType.Debit;
             data.Add(dueMoney);
 
             BalanceSheetItem investment = new BalanceSheetItem();
-            investment.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("Return Money(Self)");
+            investment.Amount = GetInvestmentReport("Investment").Sum(x => x.Amount); ;
             investment.BalancesheetItem = "Investment";
             investment.Transaction = Enum.Enums.TransactionType.Debit;
             data.Add(investment);

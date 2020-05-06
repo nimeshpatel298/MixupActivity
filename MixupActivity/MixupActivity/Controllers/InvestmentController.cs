@@ -92,7 +92,7 @@ namespace MixupActivity.Controllers
             var category = ConfigurationManager.AppSettings["InvestmentCategory"];
             var list = category.Split(',').Select(x => new { item = x, value = x });
             ViewBag.InvestmentTypes = new SelectList(list, "value", "item");
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = 1 }, new { item = "Debit", value = 2 } }, "value", "item");
             return View(investment);
         }
 
@@ -109,7 +109,7 @@ namespace MixupActivity.Controllers
             var category = ConfigurationManager.AppSettings["InvestmentCategory"];
             var list = category.Split(',').Select(x => new { item = x, value = x });
             ViewBag.InvestmentTypes = new SelectList(list, "value", "item");
-            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = "1" }, new { item = "Debit", value = "2" } }, "value", "item");
+            ViewBag.TransactionType = new SelectList(new List<object>() { new { item = "Credit", value = 1 }, new { item = "Debit", value = 2 } }, "value", "item");
             return View(investment);
         }
 
