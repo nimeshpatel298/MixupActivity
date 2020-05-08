@@ -124,10 +124,12 @@
             @Html.DisplayName("Transaction For")
         </th>
 
+        <th class="d-none d-lg-table-cell"></th>
+        <th class="d-none d-sm-block"> </th>
         @*<th>
-            @Html.DisplayName("Approved?")
-        </th>*@
-        <th class="d-none d-sm-block">
+                @Html.DisplayName("Approved?")
+            </th>*@
+        <th class="d-none d-lg-table-cell">
 
         </th>
         <th class="d-none d-lg-table-cell">
@@ -152,33 +154,36 @@
             <td>
                 @Html.DisplayFor(modelItem => item.TransactionFor.TranscationFor)
             </td>
+            <td class="d-none d-lg-table-cell">
+                @Html.DisplayFor(modelItem => item.Interest)
+            </td>
             @*<td>
-                @if (item.IsApproved == true)
-                {
-                    @Html.DisplayName("Approved")
-                    
-                }
-                else if (item.IsApproved == false)
-                {
-                    @Html.DisplayName("Rejected")
-                }
-                else
-                {
-                    @Html.DisplayName("No Action")
-                }
-            </td>*@
+                    @if (item.IsApproved == true)
+                    {
+                        @Html.DisplayName("Approved")
+
+                    }
+                    else if (item.IsApproved == false)
+                    {
+                        @Html.DisplayName("Rejected")
+                    }
+                    else
+                    {
+                        @Html.DisplayName("No Action")
+                    }
+                </td>*@
             <td class="d-none d-sm-block">
-                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", (item.TranscationType == MixupActivity.Enum.Enums.TransactionType.Credit ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @{ MvcHtmlString editS = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>", "Edit", (item.TransactionFor.TransactionType == 1 ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(editS.ToString()))
 
-                @{ MvcHtmlString deleteS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", (item.TranscationType == MixupActivity.Enum.Enums.TransactionType.Credit ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @{ MvcHtmlString deleteS = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>", "Delete", (item.TransactionFor.TransactionType == 1 ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(deleteS.ToString()))
             </td>
             <td class="d-none d-lg-table-cell">
-                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", (item.TranscationType == MixupActivity.Enum.Enums.TransactionType.Credit ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @{ MvcHtmlString edit = Html.ActionLink("<span class='glyphicon glyphicon-pencil'></span>Edit", "Edit", (item.TransactionFor.TransactionType == 1 ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(edit.ToString()))
 
-                @{ MvcHtmlString delete = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete", "Delete", (item.TranscationType == MixupActivity.Enum.Enums.TransactionType.Credit ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
+                @{ MvcHtmlString delete = Html.ActionLink("<span class='glyphicon glyphicon-remove'></span>Delete", "Delete", (item.TransactionFor.TransactionType == 1 ? "Transactions" : "Withdrawal"), new { id = item.TranscationGuid }, new { @class = "btn btn-info btn-sm" }); }
                 @Html.Raw(HttpUtility.HtmlDecode(delete.ToString()))
             </td>
         </tr>

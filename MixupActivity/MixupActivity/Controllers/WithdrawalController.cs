@@ -40,7 +40,16 @@ namespace MixupActivity.Controllers
                 {
                     Transaction transaction = new Transaction();
                     transaction.TranscationGuid = Guid.NewGuid();
-                    transaction.TranscationType = Enum.Enums.TransactionType.Debit;
+                    
+                    var transFor = db.TransactionFor.FirstOrDefault(x => x.TranscationForGuid == withdraw.TranscationForGuid).TranscationFor;
+                    if (transFor == "Return Money(Self)" || transFor == "Return Money(Third Party)")
+                    {
+                        transaction.TranscationType = Enum.Enums.TransactionType.Credit;
+                    }
+                    else
+                    {
+                        transaction.TranscationType = Enum.Enums.TransactionType.Debit;
+                    }
                     transaction.TranscationForGuid = withdraw.TranscationForGuid;
                     transaction.PersonGuid = withdraw.PersonGuid;
                     transaction.Amount = withdraw.Amount;

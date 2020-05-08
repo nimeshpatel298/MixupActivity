@@ -5,12 +5,14 @@ using System.Linq;
 using System.Web;
 using MixupActivity.Models;
 using System.Data.Entity;
+using log4net;
 
 namespace MixupActivity.Services
 {
     public class DepositService
     {
         private Context.AppContext db;
+        private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public DepositService()
         {
             db = new Context.AppContext();
@@ -19,8 +21,14 @@ namespace MixupActivity.Services
         {
 
             GetEstimation(personGuid, transactionForGuid, ref amount, ref message);
+            //log.Error("PersonGuid :" + personGuid);
+            //log.Error("WithDraw Money(Self) :" + TotalInterestPayable(personGuid, "WithDraw Money(Self)"));
+            //log.Error("Return Money(Self:" + TotalInterestPayable(personGuid, "Return Money(Self)"));
+            //log.Error("Interest(Self):" + TotalInterestPaid(personGuid, "Interest(Self)"));
 
             selfInterest = Math.Round(TotalInterestPayable(personGuid, "WithDraw Money(Self)") - TotalInterestPayable(personGuid, "Return Money(Self)") - TotalInterestPaid(personGuid, "Interest(Self)"), 0);
+           // TotalInterestPayable(personGuid, "WithDraw Money(Self)", "Return Money(Self)");
+            //log.Error("Interest Self:" + selfInterest);
             selfInterestMessage = "Total Outstanding Amount is " + (TotalAmount(personGuid, "WithDraw Money(Self)") - TotalAmount(personGuid, "Return Money(Self)")) + ". Payable Interest is " + selfInterest + ".";
             if (selfInterest <= 0)
             {
@@ -97,10 +105,12 @@ namespace MixupActivity.Services
             return this.db.Transactions.Where(x => x.PersonGuid.Equals(personGuid) && x.TranscationForGuid.Equals(transactionFor.TranscationForGuid)).ToList()
                 .Select(x => new
                 {
-                    Interest = (x.Amount * x.Interest) / 100,
-                    Days = (endDate - x.TransactionDate).TotalDays
+                    Interest = (x.Amount * (x.Interest / 12)) / 100,
+                    Months = (int)Math.Round(endDate.Subtract(x.TransactionDate).Days / (365.25 / 12), 0)
+                    //((endDate.Year - x.TransactionDate.Year) * 12) + endDate.Month - x.TransactionDate.Month + 1
+
                 })
-                .Select(x => ((x.Interest * (decimal)x.Days) / 365))
+                .Select(x => x.Interest * x.Months)
                 .Sum(x => x);
         }
 
@@ -257,7 +267,7 @@ namespace MixupActivity.Services
                 user.Person = new Person();
                 user.Person.PersonName = x.PersonName;
                 var items = db.Investments.Where(y => y.InvestmentName == x.PersonName && y.InvestmentDate >= month.MonthStartDate && y.InvestmentDate <= month.MonthEndDate).ToList();
-                
+
                 if (items == null || items.Count == 0)
                     user.Amount = 0;
                 else
@@ -414,7 +424,7 @@ namespace MixupActivity.Services
             data.Add(otherCredit);
 
             BalanceSheetItem dueMoney = new BalanceSheetItem();
-            dueMoney.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("WithDraw Money(Third Party)") - GetTotalOf("Return Money(Self)") - GetTotalOf("Return Money(Third Party)") ;
+            dueMoney.Amount = GetTotalOf("WithDraw Money(Self)") + GetTotalOf("WithDraw Money(Third Party)") - GetTotalOf("Return Money(Self)") - GetTotalOf("Return Money(Third Party)");
             dueMoney.BalancesheetItem = "Due Money";
             dueMoney.Transaction = Enum.Enums.TransactionType.Debit;
             data.Add(dueMoney);

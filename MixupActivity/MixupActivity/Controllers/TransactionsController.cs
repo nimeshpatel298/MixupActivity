@@ -139,18 +139,20 @@ namespace MixupActivity.Controllers
             if (ModelState.IsValid)
             {
                 List<Transaction> transactions = new List<Transaction>();
-
-                Transaction transaction = new Transaction()
+                if ((int)deposit.Amount > 0)
                 {
-                    TranscationGuid = Guid.NewGuid(),
-                    Amount = deposit.Amount,
-                    TranscationForGuid = deposit.TranscationForGuid,
-                    TransactionDate = deposit.TransactionDate,
-                    TranscationType = Enum.Enums.TransactionType.Credit,
-                    PersonGuid = deposit.PersonGuid
-                };
+                    Transaction transaction = new Transaction()
+                    {
+                        TranscationGuid = Guid.NewGuid(),
+                        Amount = deposit.Amount,
+                        TranscationForGuid = deposit.TranscationForGuid,
+                        TransactionDate = deposit.TransactionDate,
+                        TranscationType = Enum.Enums.TransactionType.Credit,
+                        PersonGuid = deposit.PersonGuid
+                    };
 
-                transactions.Add(transaction);
+                    transactions.Add(transaction);
+                }
 
                 if ((int)deposit.SelfInterest > 0)
                 {
@@ -167,7 +169,7 @@ namespace MixupActivity.Controllers
                     transactions.Add(selfInterestTransaction);
                 }
 
-                if ((int)deposit.SelfInterest > 0)
+                if ((int)deposit.ExternalInterest > 0)
                 {
                     Transaction externalInterestTransaction = new Transaction()
                     {
