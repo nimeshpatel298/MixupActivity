@@ -28,7 +28,8 @@
             <div class="row">
                 <div class="form-group">
                     @Html.LabelFor(model => model.PersonGuid, "Transaction For", htmlAttributes: new { @class = "control-label col-md-2" })
-                    @Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList, "All", htmlAttributes: new { @class = "form-control" })
+                    @*@Html.DropDownList("PersonGuid", ViewBag.PersonGuid as SelectList, "All", htmlAttributes: new { @class = "form-control" })*@
+                    @Html.DropDownList("PersonGuid", null, "All", htmlAttributes: new { @class = "form-control", id = "PersonGuid" })
                 </div>
             </div>
 
@@ -38,22 +39,23 @@
                     @Html.EditorFor(m => m.IsMonthlyEMI, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-lg-4">
-                    @Html.LabelFor(model => model.ReturnMoneySelf, "Return Money Self", htmlAttributes: new { @class = "control-label" })
-                    @Html.EditorFor(m => m.ReturnMoneySelf, new { @class = "form-control" })
-                </div>
-                <div class="form-group col-lg-4">
-                    @Html.LabelFor(model => model.ReturnMoneyThirdParty, "Return Money ThirdParty", htmlAttributes: new { @class = "control-label" })
-                    @Html.EditorFor(m => m.ReturnMoneyThirdParty, new { @class = "form-control" })
-                </div>
-            </div>
-            <div class="row">
-                <div class="form-group col-lg-4">
                     @Html.LabelFor(model => model.InterestSelf, "Interest Self", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.InterestSelf, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-lg-4">
                     @Html.LabelFor(model => model.InterestThirdParty, "Interest ThirdParty", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.InterestThirdParty, new { @class = "form-control" })
+                </div>
+                
+            </div>
+            <div class="row">
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.ReturnMoneySelf, "Return Money Self", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.ReturnMoneySelf, new { @class = "form-control" })
+                </div>
+                <div class="form-group col-lg-4">
+                    @Html.LabelFor(model => model.ReturnMoneyThirdParty, "Return Money ThirdParty", htmlAttributes: new { @class = "control-label" })
+                    @Html.EditorFor(m => m.ReturnMoneyThirdParty, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-lg-3">
                     @Html.LabelFor(model => model.WithDrawMoneySelf, "With DrawMoney Self", htmlAttributes: new { @class = "control-label" })
@@ -67,16 +69,16 @@
                     @Html.LabelFor(model => model.WithDrawMoneyThirdParty, "WithDraw Money ThirdParty", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.WithDrawMoneyThirdParty, new { @class = "form-control" })
                 </div>
-                <div class="form-group col-lg-4">
+                @*<div class="form-group col-lg-4">
                     @Html.LabelFor(model => model.Sip, "SIP", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.Sip, new { @class = "form-control" })
                 </div>
                 <div class="form-group col-lg-4">
                     @Html.LabelFor(model => model.Expense, "Expense", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.Expense, new { @class = "form-control" })
-                </div>
+                </div>*@
             </div>
-            <div class="row">
+            @*<div class="row">
 
                 <div class="form-group col-lg-4">
                     @Html.LabelFor(model => model.IsApproved, "Is Approved", htmlAttributes: new { @class = "control-label" })
@@ -90,7 +92,7 @@
                     @Html.LabelFor(model => model.Reject, "Rejected", htmlAttributes: new { @class = "control-label" })
                     @Html.EditorFor(m => m.Reject, new { @class = "form-control" })
                 </div>
-            </div>
+            </div>*@
 
         </div>
         <div class="panel-footer">

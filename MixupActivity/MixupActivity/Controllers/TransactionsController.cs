@@ -20,8 +20,10 @@ namespace MixupActivity.Controllers
         private static readonly ILog log = log4net.LogManager.GetLogger(System.Reflection.MethodBase.GetCurrentMethod().DeclaringType);
         public ActionResult Index()
         {
-            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
-            return View(new TransactionsWithFilter { Transactions = GetAllTransactions().ToList() });
+            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
+            var obj = new TransactionsWithFilter() { PersonGuid = ((CustomPrincipal)User).PersonGuid, IsMonthlyEMI = true, InterestSelf = true, InterestThirdParty = true };
+            this.FilterTransactions(obj);
+            return View(obj);
         }
 
         [HttpPost]
@@ -29,12 +31,13 @@ namespace MixupActivity.Controllers
         {
             this.FilterTransactions(transactionFilter);
 
-            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId");
+            ViewBag.PersonGuid = new SelectList(db.Persons, "PersonGuid", "LoginId", ((CustomPrincipal)User).PersonGuid);
             return View(transactionFilter);
         }
 
         private void FilterTransactions(TransactionsWithFilter transactionFilter)
         {
+            log.Error("Filter" + transactionFilter.PersonGuid);
             transactionFilter.Transactions = this.GetAllTransactions();
             if (transactionFilter.PersonGuid != null)
                 transactionFilter.Transactions = transactionFilter.Transactions.Where(
@@ -62,7 +65,8 @@ namespace MixupActivity.Controllers
 
             if (lstAllowTransactionFor.Any())
                 transactionFilter.Transactions = transactionFilter.Transactions.Where(
-                    x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor)).OrderByDescending(x => x.TransactionDate).OrderBy(x => x.Person);
+                    x => lstAllowTransactionFor.Contains(x.TransactionFor.TranscationFor)).ToList().OrderBy(x => x.PersonGuid).OrderByDescending(x => x.TransactionDate).ToList();
+            log.Error("After Filter :" + transactionFilter.Transactions.Count());
 
             //if(transactionFilter.)
         }
@@ -183,9 +187,9 @@ namespace MixupActivity.Controllers
 
                     transactions.Add(externalInterestTransaction);
                 }
-               
-                    
-                
+
+
+
                 db.Transactions.AddRange(transactions);
                 db.SaveChanges();
 

@@ -8,6 +8,7 @@ using MixupActivity.Services;
 
 namespace MixupActivity.Controllers
 {
+    [Authorize()]
     public class HomeController : Controller
     {
 

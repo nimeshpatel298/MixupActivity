@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -63,7 +64,7 @@ namespace MixupActivity.Controllers
             return View();
         }
 
-        public void DownloadToExcel()
+        public ActionResult DownloadToExcel()
         {
 
             var users = db.Persons.ToList();
@@ -75,11 +76,16 @@ namespace MixupActivity.Controllers
                 CreateInvestmentSheet(Ep);
                 CreateBalanceSheet(Ep);
 
-                Response.Clear();
-                Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
-                Response.AddHeader("content-disposition", "attachment: filename=" + "Mixup_Report.xlsx");
-                Response.BinaryWrite(Ep.GetAsByteArray());
-                Response.End();
+                //Response.Clear();
+                //Response.ContentType = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet";
+                //Response.AddHeader("content-disposition", "attachment: filename=" + "Mixup_Report.xlsx");
+                //Response.BinaryWrite(Ep.GetAsByteArray());
+                //Response.End();
+
+                var bytes = Ep.GetAsByteArray();
+
+
+                return File(new MemoryStream(bytes, 0, bytes.Length), "application/octet-stream", DateTime.Now.Month.ToString("MMMM") + "_" + DateTime.Now.Year + ".xlsx");
             }
 
         }
@@ -165,11 +171,19 @@ namespace MixupActivity.Controllers
                 col = (char)((int)startCol + 1);
                 foreach (var user in item.Users)
                 {
-                    Sheet.Cells[string.Format("{0}{1}", col, row)].Value = user.Amount;
+                    if (user.Amount > 0)
+                    {
+                        Sheet.Cells[string.Format("{0}{1}", col, row)].Value = user.Amount;
+                        Sheet.Cells[string.Format("{0}{1}", col, row)].Style.Numberformat.Format = "₹##,##,##0";
+                    }
                     col++;
                 }
 
-                Sheet.Cells[string.Format("{0}{1}", col, row)].Value = item.TotalOfMonth;
+                if (item.TotalOfMonth > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, row)].Value = item.TotalOfMonth;
+                    Sheet.Cells[string.Format("{0}{1}", col, row)].Style.Numberformat.Format = "₹##,##,##0";
+                }
 
                 if (row == (preserveStartRow + 3) || row == (preserveStartRow + 17) || row == (preserveStartRow + 19))
                 {
@@ -225,8 +239,8 @@ namespace MixupActivity.Controllers
 
             string[] columns = { "Date", "Interest" };
             CreateInvestmentReport(investmentData, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'B', "Bank Interest", columns, item => item.InvestmentDate.Date.ToString());
-            string[]  columns2 = { "Bank", "Amount" };
-            CreateInvestmentReport(bankBalance, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'E', "Bank Balance", columns2,  item => item.InvestmentName);
+            string[] columns2 = { "Bank", "Amount" };
+            CreateInvestmentReport(bankBalance, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'E', "Bank Balance", columns2, item => item.InvestmentName);
             string[] columns3 = { "Year", "Amount" };
             CreateInvestmentReport(pastYearInterestData, Sheet, transactioReportData.Count + outsideTransactioReportData.Count + 30, 'H', "Past Year Interest", columns3, item => item.InvestmentName);
 
@@ -265,9 +279,17 @@ namespace MixupActivity.Controllers
                 col = (char)((int)startCol);
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Person.PersonName;
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount == 0 ? "" : item.Amount.ToString();
+                if (item.Amount > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
+                }
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount == 0 ? "" : item.ReturnedAmount.ToString();
+                if (item.ReturnedAmount > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
+                }
                 col++;
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "dd-mm-yyyy";
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.TransactionDate;
@@ -296,9 +318,17 @@ namespace MixupActivity.Controllers
                 col = (char)((int)startCol);
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Person.PersonName;
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount == 0 ? "" : item.Amount.ToString(); ;
+                if (item.Amount > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
+                }
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount == 0 ? "" : item.ReturnedAmount.ToString();
+                if (item.ReturnedAmount > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.ReturnedAmount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
+                }
                 col++;
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "dd-mm-yyyy";
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.TransactionDate;
@@ -320,6 +350,7 @@ namespace MixupActivity.Controllers
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = "Total Amount Due";
             col++;
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = collection.Sum(x => x.Amount) + collection2.Sum(x => x.Amount) - collection.Sum(x => x.ReturnedAmount) - collection2.Sum(x => x.ReturnedAmount);
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
 
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Border.Top.Style = ExcelBorderStyle.Thin;
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Border.Right.Style = ExcelBorderStyle.Thin;
@@ -342,7 +373,7 @@ namespace MixupActivity.Controllers
 
             ExcelWorksheet Sheet = Ep.Workbook.Worksheets.Add("Investment");
 
-            
+
 
             CreateTable(users.ToList(), collection, Sheet, 2, 'B', "Investment Details");
 
@@ -362,7 +393,7 @@ namespace MixupActivity.Controllers
 
             startRow++;
 
-            
+
 
             col = (char)((int)startCol);
             foreach (var columnText in columns)
@@ -382,7 +413,11 @@ namespace MixupActivity.Controllers
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "dd-mm-yyyy";
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = predicate(item);
                 col++;
-                Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                if (item.Amount > 0)
+                {
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
+                }
                 col++;
 
                 startRow++;
@@ -392,6 +427,7 @@ namespace MixupActivity.Controllers
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = "Total";
             col++;
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = collection.Sum(x => x.Amount);
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
             col++;
 
             // startRow++;
@@ -450,7 +486,7 @@ namespace MixupActivity.Controllers
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Fill.PatternType = ExcelFillStyle.Solid;
                 Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Fill.BackgroundColor.SetColor(backColor);
 
-                
+
 
                 col++;
             }
@@ -464,12 +500,14 @@ namespace MixupActivity.Controllers
                 if (item.Transaction == Enum.Enums.TransactionType.Credit)
                 {
                     Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
                 }
                 col++;
 
                 if (item.Transaction == Enum.Enums.TransactionType.Debit)
                 {
                     Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = item.Amount;
+                    Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
                 }
 
                 startRow++;
@@ -481,8 +519,10 @@ namespace MixupActivity.Controllers
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = "Total";
             col++;
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = creditTotal;
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
             col++;
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = debitTotal;
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
 
             startRow++;
 
@@ -494,6 +534,7 @@ namespace MixupActivity.Controllers
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", col, startRow, endCol, startRow)].Merge = true;
 
             Sheet.Cells[string.Format("{0}{1}", col, startRow)].Value = creditTotal - debitTotal;
+            Sheet.Cells[string.Format("{0}{1}", col, startRow)].Style.Numberformat.Format = "₹##,##,##0";
 
 
             Sheet.Cells[string.Format("{0}{1}:{2}{3}", startCol, preserveStartRow, endCol, startRow)].Style.Border.Top.Style = ExcelBorderStyle.Thin;
