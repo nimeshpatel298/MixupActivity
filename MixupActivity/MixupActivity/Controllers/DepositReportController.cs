@@ -85,7 +85,7 @@ namespace MixupActivity.Controllers
                 var bytes = Ep.GetAsByteArray();
 
 
-                return File(new MemoryStream(bytes, 0, bytes.Length), "application/octet-stream", DateTime.Now.Month.ToString("MMMM") + "_" + DateTime.Now.Year + ".xlsx");
+                return File(new MemoryStream(bytes, 0, bytes.Length), "application/octet-stream", DateTime.Now.ToString("MMM") + "_" + DateTime.Now.Year + ".xlsx");
             }
 
         }
